@@ -1,3 +1,11 @@
 papers
 data
 convert_images_png.ipynb
+autoencoder.ipynb
+
+__pycache__/
+*.pyc
+*.pyo
+.env/
+.venv/
+ipynb_checkpoints/
