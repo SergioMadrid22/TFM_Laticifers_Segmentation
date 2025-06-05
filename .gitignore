@@ -1,7 +1,12 @@
 papers
-data
+datasets
 convert_images_png.ipynb
 autoencoder.ipynb
+notebooks/create_data_csv.py
+create_masks.ipynb
+enhance_images.ipynb
+saved_models
+enhance_images_clahe.ipynb
 
 __pycache__/
 *.pyc
