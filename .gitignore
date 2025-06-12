@@ -7,6 +7,7 @@ create_masks.ipynb
 enhance_images.ipynb
 saved_models
 enhance_images_clahe.ipynb
+checkpoints
 
 __pycache__/
 *.pyc

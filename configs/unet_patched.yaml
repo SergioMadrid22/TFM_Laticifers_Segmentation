@@ -1,0 +1,31 @@
+model:
+  name: 'unet'
+  alias: 'unet_resnet18'
+  encoder_name: 'resnet18'
+  encoder_weights: None
+  in_channels: 1
+  classes: 1
+  activation: 'sigmoid'
+  dropout: 0.2
+
+dataset:
+  root: '/home/smadper/TFM/datasets/laticifers'
+  image_size: [512, 512]
+  patch_size: [512, 512]
+  stride: [512, 512]
+  num_patches: 20
+  dataset_csv: 'laticifer_dataset_index.csv'
+  num_workers: 8
+
+train:
+  batch_size: 16
+  num_epochs: 150
+  learning_rate: 0.001
+  accumulation_steps: 1
+  save_dir: '/home/smadper/TFM/checkpoints'
+  log_interval: 1
+  patience: 15
+
+test:
+  batch_size: 1
+  save_dir: '/home/smadper/TFM/results'

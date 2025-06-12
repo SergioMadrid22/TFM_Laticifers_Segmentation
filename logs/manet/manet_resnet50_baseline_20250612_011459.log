@@ -1,0 +1,41 @@
+2025-06-12 01:14:59 INFO Starting training with configuration: {'model': {'name': 'manet', 'alias': 'manet_resnet50', 'encoder_name': 'resnet50', 'encoder_weights': 'None', 'in_channels': 1, 'classes': 1, 'activation': 'sigmoid', 'dropout': 0.0}, 'dataset': {'root': '/home/smadper/TFM/datasets/laticifers', 'image_size': [512, 512], 'dataset_csv': 'laticifer_dataset_index.csv'}, 'train': {'batch_size': 4, 'num_epochs': 150, 'learning_rate': 0.001, 'accumulation_steps': 1, 'save_dir': '/home/smadper/TFM/checkpoints', 'log_interval': 1, 'patience': 15, 'experiment_name': 'manet_resnet50_baseline', 'timestamp': '20250612_011459'}, 'test': {'batch_size': 4, 'save_dir': '/home/smadper/TFM/results'}}
+2025-06-12 01:14:59 INFO Loading model manet with settings {'name': 'manet', 'alias': 'manet_resnet50', 'encoder_name': 'resnet50', 'encoder_weights': 'None', 'in_channels': 1, 'classes': 1, 'activation': 'sigmoid', 'dropout': 0.0}
+2025-06-12 01:15:10 INFO Epoch 001 | Train Loss: 0.9310 | Val Loss: 0.9289 | Dice: 0.1801 | IoU: 0.0991 | LR: 0.001000
+2025-06-12 01:15:17 INFO Epoch 002 | Train Loss: 0.9084 | Val Loss: 0.9198 | Dice: 0.1730 | IoU: 0.0949 | LR: 0.001000
+2025-06-12 01:15:24 INFO Epoch 003 | Train Loss: 0.8931 | Val Loss: 0.9127 | Dice: 0.1773 | IoU: 0.0975 | LR: 0.001000
+2025-06-12 01:15:31 INFO Epoch 004 | Train Loss: 0.8774 | Val Loss: 0.9124 | Dice: 0.2032 | IoU: 0.1146 | LR: 0.001000
+2025-06-12 01:15:38 INFO Epoch 005 | Train Loss: 0.8604 | Val Loss: 0.8656 | Dice: 0.2365 | IoU: 0.1377 | LR: 0.001000
+2025-06-12 01:15:44 INFO Epoch 006 | Train Loss: 0.8372 | Val Loss: 0.9041 | Dice: 0.2372 | IoU: 0.1370 | LR: 0.001000
+2025-06-12 01:15:50 INFO Epoch 007 | Train Loss: 0.8136 | Val Loss: 0.9012 | Dice: 0.2684 | IoU: 0.1588 | LR: 0.001000
+2025-06-12 01:15:56 INFO Epoch 008 | Train Loss: 0.7928 | Val Loss: 0.8943 | Dice: 0.2870 | IoU: 0.1718 | LR: 0.001000
+2025-06-12 01:16:03 INFO Epoch 009 | Train Loss: 0.7690 | Val Loss: 0.7864 | Dice: 0.3404 | IoU: 0.2057 | LR: 0.001000
+2025-06-12 01:16:10 INFO Epoch 010 | Train Loss: 0.7492 | Val Loss: 0.7801 | Dice: 0.3158 | IoU: 0.1882 | LR: 0.001000
+2025-06-12 01:16:17 INFO Epoch 011 | Train Loss: 0.7373 | Val Loss: 0.7521 | Dice: 0.3426 | IoU: 0.2070 | LR: 0.001000
+2025-06-12 01:16:24 INFO Epoch 012 | Train Loss: 0.7256 | Val Loss: 0.7332 | Dice: 0.3708 | IoU: 0.2278 | LR: 0.001000
+2025-06-12 01:16:32 INFO Epoch 013 | Train Loss: 0.7177 | Val Loss: 0.7318 | Dice: 0.3689 | IoU: 0.2263 | LR: 0.001000
+2025-06-12 01:16:38 INFO Epoch 014 | Train Loss: 0.7070 | Val Loss: 0.7371 | Dice: 0.3485 | IoU: 0.2112 | LR: 0.001000
+2025-06-12 01:16:44 INFO Epoch 015 | Train Loss: 0.7070 | Val Loss: 0.7517 | Dice: 0.3117 | IoU: 0.1847 | LR: 0.001000
+2025-06-12 01:16:51 INFO Epoch 016 | Train Loss: 0.7082 | Val Loss: 0.7098 | Dice: 0.3963 | IoU: 0.2472 | LR: 0.001000
+2025-06-12 01:16:59 INFO Epoch 017 | Train Loss: 0.6956 | Val Loss: 0.7078 | Dice: 0.3863 | IoU: 0.2396 | LR: 0.001000
+2025-06-12 01:17:05 INFO Epoch 018 | Train Loss: 0.6911 | Val Loss: 0.7223 | Dice: 0.3707 | IoU: 0.2278 | LR: 0.001000
+2025-06-12 01:17:11 INFO Epoch 019 | Train Loss: 0.6796 | Val Loss: 0.7612 | Dice: 0.2703 | IoU: 0.1570 | LR: 0.001000
+2025-06-12 01:17:18 INFO Epoch 020 | Train Loss: 0.6832 | Val Loss: 0.7170 | Dice: 0.3767 | IoU: 0.2323 | LR: 0.001000
+2025-06-12 01:17:24 INFO Epoch 021 | Train Loss: 0.6779 | Val Loss: 0.7230 | Dice: 0.3780 | IoU: 0.2333 | LR: 0.001000
+2025-06-12 01:17:30 INFO Epoch 022 | Train Loss: 0.6712 | Val Loss: 0.7341 | Dice: 0.3191 | IoU: 0.1903 | LR: 0.001000
+2025-06-12 01:17:37 INFO Epoch 023 | Train Loss: 0.6712 | Val Loss: 0.7065 | Dice: 0.3739 | IoU: 0.2301 | LR: 0.001000
+2025-06-12 01:17:44 INFO Epoch 024 | Train Loss: 0.6673 | Val Loss: 0.7109 | Dice: 0.3860 | IoU: 0.2393 | LR: 0.001000
+2025-06-12 01:17:50 INFO Epoch 025 | Train Loss: 0.6647 | Val Loss: 0.7243 | Dice: 0.3292 | IoU: 0.1973 | LR: 0.001000
+2025-06-12 01:17:56 INFO Epoch 026 | Train Loss: 0.6622 | Val Loss: 0.7118 | Dice: 0.3634 | IoU: 0.2222 | LR: 0.001000
+2025-06-12 01:18:02 INFO Epoch 027 | Train Loss: 0.6550 | Val Loss: 0.7163 | Dice: 0.3648 | IoU: 0.2235 | LR: 0.001000
+2025-06-12 01:18:09 INFO Epoch 028 | Train Loss: 0.6541 | Val Loss: 0.7240 | Dice: 0.3594 | IoU: 0.2192 | LR: 0.001000
+2025-06-12 01:18:15 INFO Epoch 029 | Train Loss: 0.6612 | Val Loss: 0.7171 | Dice: 0.3748 | IoU: 0.2307 | LR: 0.001000
+2025-06-12 01:18:21 INFO Epoch 030 | Train Loss: 0.6511 | Val Loss: 0.7187 | Dice: 0.3552 | IoU: 0.2161 | LR: 0.001000
+2025-06-12 01:18:28 INFO Epoch 031 | Train Loss: 0.6445 | Val Loss: 0.7597 | Dice: 0.2646 | IoU: 0.1530 | LR: 0.001000
+2025-06-12 01:18:34 INFO Epoch 032 | Train Loss: 0.6397 | Val Loss: 0.7250 | Dice: 0.3443 | IoU: 0.2080 | LR: 0.001000
+2025-06-12 01:18:40 INFO Epoch 033 | Train Loss: 0.6339 | Val Loss: 0.7327 | Dice: 0.3350 | IoU: 0.2014 | LR: 0.001000
+2025-06-12 01:18:46 INFO Epoch 034 | Train Loss: 0.6373 | Val Loss: 0.7274 | Dice: 0.3337 | IoU: 0.2004 | LR: 0.000500
+2025-06-12 01:18:53 INFO Epoch 035 | Train Loss: 0.6353 | Val Loss: 0.7078 | Dice: 0.3751 | IoU: 0.2310 | LR: 0.000500
+2025-06-12 01:18:59 INFO Epoch 036 | Train Loss: 0.6149 | Val Loss: 0.7130 | Dice: 0.3478 | IoU: 0.2105 | LR: 0.000500
+2025-06-12 01:19:05 INFO Epoch 037 | Train Loss: 0.6070 | Val Loss: 0.7205 | Dice: 0.3445 | IoU: 0.2083 | LR: 0.000500
+2025-06-12 01:19:11 INFO Early stopping at epoch 38 | Best Dice: 0.3963 at epoch 16
+2025-06-12 01:19:15 INFO Test Loss: 0.7065 | Dice: 0.3739 | IoU: 0.2301

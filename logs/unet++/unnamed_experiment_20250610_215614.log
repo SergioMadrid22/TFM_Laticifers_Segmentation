@@ -1,0 +1,34 @@
+2025-06-10 21:56:14 INFO Loading model unet++ with settings {'name': 'unet++', 'alias': 'unetplusplus_resnet34', 'encoder_name': 'resnet34', 'encoder_weights': 'imagenet', 'in_channels': 1, 'classes': 1, 'activation': 'sigmoid'}
+2025-06-10 21:56:21 INFO Epoch 001 | Train Loss: 1.3540 | Val Loss: 1.4713 | Best Dice: 0.0798 | LR: 0.001000
+2025-06-10 21:56:25 INFO Epoch 002 | Train Loss: 1.2044 | Val Loss: 1.3108 | Best Dice: 0.2103 | LR: 0.001000
+2025-06-10 21:56:29 INFO Epoch 003 | Train Loss: 1.1063 | Val Loss: 1.1799 | Best Dice: 0.3078 | LR: 0.001000
+2025-06-10 21:56:34 INFO Epoch 004 | Train Loss: 1.0424 | Val Loss: 1.1375 | Best Dice: 0.3461 | LR: 0.001000
+2025-06-10 21:56:38 INFO Epoch 005 | Train Loss: 0.9886 | Val Loss: 1.0416 | Best Dice: 0.3464 | LR: 0.001000
+2025-06-10 21:56:43 INFO Epoch 006 | Train Loss: 0.9473 | Val Loss: 1.0290 | Best Dice: 0.3551 | LR: 0.001000
+2025-06-10 21:56:47 INFO Epoch 007 | Train Loss: 0.9097 | Val Loss: 0.9717 | Best Dice: 0.3551 | LR: 0.001000
+2025-06-10 21:56:52 INFO Epoch 008 | Train Loss: 0.8785 | Val Loss: 0.9126 | Best Dice: 0.3931 | LR: 0.001000
+2025-06-10 21:56:56 INFO Epoch 009 | Train Loss: 0.8539 | Val Loss: 0.8980 | Best Dice: 0.3931 | LR: 0.001000
+2025-06-10 21:57:01 INFO Epoch 010 | Train Loss: 0.8327 | Val Loss: 0.8876 | Best Dice: 0.3931 | LR: 0.001000
+2025-06-10 21:57:05 INFO Epoch 011 | Train Loss: 0.8127 | Val Loss: 0.8588 | Best Dice: 0.3931 | LR: 0.001000
+2025-06-10 21:57:09 INFO Epoch 012 | Train Loss: 0.8069 | Val Loss: 0.8411 | Best Dice: 0.3931 | LR: 0.001000
+2025-06-10 21:57:14 INFO Epoch 013 | Train Loss: 0.7837 | Val Loss: 0.8658 | Best Dice: 0.3931 | LR: 0.001000
+2025-06-10 21:57:18 INFO Epoch 014 | Train Loss: 0.7679 | Val Loss: 0.8267 | Best Dice: 0.3931 | LR: 0.001000
+2025-06-10 21:57:23 INFO Epoch 015 | Train Loss: 0.7532 | Val Loss: 0.8155 | Best Dice: 0.3931 | LR: 0.001000
+2025-06-10 21:57:27 INFO Epoch 016 | Train Loss: 0.7601 | Val Loss: 0.7958 | Best Dice: 0.4169 | LR: 0.001000
+2025-06-10 21:57:32 INFO Epoch 017 | Train Loss: 0.7529 | Val Loss: 0.7836 | Best Dice: 0.4244 | LR: 0.001000
+2025-06-10 21:57:36 INFO Epoch 018 | Train Loss: 0.7464 | Val Loss: 0.8256 | Best Dice: 0.4244 | LR: 0.001000
+2025-06-10 21:57:40 INFO Epoch 019 | Train Loss: 0.7346 | Val Loss: 0.8495 | Best Dice: 0.4244 | LR: 0.001000
+2025-06-10 21:57:44 INFO Epoch 020 | Train Loss: 0.7190 | Val Loss: 0.8037 | Best Dice: 0.4244 | LR: 0.001000
+2025-06-10 21:57:49 INFO Epoch 021 | Train Loss: 0.6984 | Val Loss: 0.8059 | Best Dice: 0.4244 | LR: 0.001000
+2025-06-10 21:57:53 INFO Epoch 022 | Train Loss: 0.6734 | Val Loss: 0.8091 | Best Dice: 0.4244 | LR: 0.001000
+2025-06-10 21:57:57 INFO Epoch 023 | Train Loss: 0.6617 | Val Loss: 0.8367 | Best Dice: 0.4244 | LR: 0.001000
+2025-06-10 21:58:02 INFO Epoch 024 | Train Loss: 0.6656 | Val Loss: 0.7951 | Best Dice: 0.4244 | LR: 0.001000
+2025-06-10 21:58:06 INFO Epoch 025 | Train Loss: 0.6752 | Val Loss: 0.8157 | Best Dice: 0.4244 | LR: 0.001000
+2025-06-10 21:58:10 INFO Epoch 026 | Train Loss: 0.6852 | Val Loss: 0.8276 | Best Dice: 0.4244 | LR: 0.001000
+2025-06-10 21:58:14 INFO Epoch 027 | Train Loss: 0.6506 | Val Loss: 0.8332 | Best Dice: 0.4244 | LR: 0.001000
+2025-06-10 21:58:19 INFO Epoch 028 | Train Loss: 0.6282 | Val Loss: 0.8130 | Best Dice: 0.4244 | LR: 0.000500
+2025-06-10 21:58:23 INFO Epoch 029 | Train Loss: 0.6074 | Val Loss: 0.8065 | Best Dice: 0.4244 | LR: 0.000500
+2025-06-10 21:58:27 INFO Epoch 030 | Train Loss: 0.5833 | Val Loss: 0.8532 | Best Dice: 0.4244 | LR: 0.000500
+2025-06-10 21:58:32 INFO Epoch 031 | Train Loss: 0.5715 | Val Loss: 0.8127 | Best Dice: 0.4244 | LR: 0.000500
+2025-06-10 21:58:36 INFO Early stopping triggered at epoch 32 | Best Dice: 0.4244 at epoch 17.
+2025-06-10 21:58:40 INFO Test Loss: 0.7836 | Test Dice: 0.4244
