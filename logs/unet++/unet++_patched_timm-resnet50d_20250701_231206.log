@@ -1,0 +1,28 @@
+2025-07-01 23:12:06 INFO Starting training with configuration: {'model': {'name': 'unet++', 'alias': 'unet_resnet34', 'encoder_name': 'resnet34', 'encoder_weights': 'imagenet', 'in_channels': 1, 'classes': 1, 'activation': 'sigmoid', 'dropout': 0.0}, 'dataset': {'root': '/home/smadper/TFM/datasets/laticifers', 'image_size': [512, 512], 'patch_size': [512, 512], 'stride': [256, 256], 'num_patches': 20, 'dataset_csv': 'laticifer_dataset_index.csv', 'num_workers': 8, 'dist_transform': True}, 'train': {'batch_size': 8, 'num_epochs': 50, 'learning_rate': 0.001, 'accumulation_steps': 1, 'save_dir': '/home/smadper/TFM/checkpoints', 'log_interval': 1, 'patience': 10, 'experiment_name': 'unet++_patched_timm-resnet50d', 'timestamp': '20250701_231206'}, 'test': {'batch_size': 1, 'save_dir': '/home/smadper/TFM/results'}, 'loss': {'name': 'bce', 'use_topographic': True, 'combine_with': 'dice', 'weights': {'main': 1.0, 'combined': 0}, 'topo': {'alpha': 2.0, 'beta': 1.0}}}
+2025-07-01 23:12:06 INFO Loading model unet++ with settings {'name': 'unet++', 'alias': 'unet_resnet34', 'encoder_name': 'resnet34', 'encoder_weights': 'imagenet', 'in_channels': 1, 'classes': 1, 'activation': 'sigmoid', 'dropout': 0.0}
+2025-07-01 23:13:05 INFO Epoch 001 | Train Loss: 0.2547 | Val Loss: 0.1331 | Dice: 0.0000 | IoU: 0.0000 | LR: 0.001000
+2025-07-01 23:14:03 INFO Epoch 002 | Train Loss: 0.1557 | Val Loss: 0.1258 | Dice: 0.0000 | IoU: 0.0000 | LR: 0.001000
+2025-07-01 23:15:02 INFO Epoch 003 | Train Loss: 0.1489 | Val Loss: 0.1109 | Dice: 0.0000 | IoU: 0.0000 | LR: 0.001000
+2025-07-01 23:16:01 INFO Epoch 004 | Train Loss: 0.1458 | Val Loss: 0.1094 | Dice: 0.0000 | IoU: 0.0000 | LR: 0.001000
+2025-07-01 23:16:58 INFO Epoch 005 | Train Loss: 0.1391 | Val Loss: 0.1170 | Dice: 0.0000 | IoU: 0.0000 | LR: 0.001000
+2025-07-01 23:17:57 INFO Epoch 006 | Train Loss: 0.1389 | Val Loss: 0.1087 | Dice: 0.0000 | IoU: 0.0000 | LR: 0.001000
+2025-07-01 23:18:56 INFO Epoch 007 | Train Loss: 0.1390 | Val Loss: 0.1079 | Dice: 0.0000 | IoU: 0.0000 | LR: 0.001000
+2025-07-01 23:19:55 INFO Epoch 008 | Train Loss: 0.1352 | Val Loss: 0.1061 | Dice: 0.0000 | IoU: 0.0000 | LR: 0.001000
+2025-07-01 23:20:54 INFO Epoch 009 | Train Loss: 0.1336 | Val Loss: 0.1163 | Dice: 0.0000 | IoU: 0.0000 | LR: 0.001000
+2025-07-01 23:21:52 INFO Epoch 010 | Train Loss: 0.1336 | Val Loss: 0.1064 | Dice: 0.0000 | IoU: 0.0000 | LR: 0.001000
+2025-07-01 23:22:51 INFO Epoch 011 | Train Loss: 0.1280 | Val Loss: 0.1053 | Dice: 0.0000 | IoU: 0.0000 | LR: 0.001000
+2025-07-01 23:23:49 INFO Epoch 012 | Train Loss: 0.1290 | Val Loss: 0.1122 | Dice: 0.0000 | IoU: 0.0000 | LR: 0.001000
+2025-07-01 23:24:49 INFO Epoch 013 | Train Loss: 0.1252 | Val Loss: 0.1051 | Dice: 0.0000 | IoU: 0.0000 | LR: 0.001000
+2025-07-01 23:25:48 INFO Epoch 014 | Train Loss: 0.1294 | Val Loss: 0.1046 | Dice: 0.0000 | IoU: 0.0000 | LR: 0.001000
+2025-07-01 23:26:47 INFO Epoch 015 | Train Loss: 0.1253 | Val Loss: 0.1030 | Dice: 0.0000 | IoU: 0.0000 | LR: 0.001000
+2025-07-01 23:27:46 INFO Epoch 016 | Train Loss: 0.1252 | Val Loss: 0.1037 | Dice: 0.0000 | IoU: 0.0000 | LR: 0.001000
+2025-07-01 23:28:44 INFO Epoch 017 | Train Loss: 0.1242 | Val Loss: 0.1116 | Dice: 0.0000 | IoU: 0.0000 | LR: 0.001000
+2025-07-01 23:29:42 INFO Epoch 018 | Train Loss: 0.1204 | Val Loss: 0.1046 | Dice: 0.0003 | IoU: 0.0002 | LR: 0.001000
+2025-07-01 23:30:40 INFO Epoch 019 | Train Loss: 0.1189 | Val Loss: 0.1056 | Dice: 0.0000 | IoU: 0.0000 | LR: 0.001000
+2025-07-01 23:31:38 INFO Epoch 020 | Train Loss: 0.1205 | Val Loss: 0.1049 | Dice: 0.0006 | IoU: 0.0003 | LR: 0.001000
+2025-07-01 23:32:36 INFO Epoch 021 | Train Loss: 0.1212 | Val Loss: 0.1042 | Dice: 0.0002 | IoU: 0.0001 | LR: 0.001000
+2025-07-01 23:33:35 INFO Epoch 022 | Train Loss: 0.1155 | Val Loss: 0.1093 | Dice: 0.0006 | IoU: 0.0003 | LR: 0.001000
+2025-07-01 23:34:32 INFO Epoch 023 | Train Loss: 0.1138 | Val Loss: 0.1094 | Dice: 0.0005 | IoU: 0.0003 | LR: 0.001000
+2025-07-01 23:35:31 INFO Epoch 024 | Train Loss: 0.1134 | Val Loss: 0.1067 | Dice: 0.0006 | IoU: 0.0003 | LR: 0.001000
+2025-07-01 23:36:29 INFO Early stopping at epoch 25 | Best Dice: 0.0008 at epoch 15
+2025-07-01 23:37:05 INFO Test Loss: 0.1030 | Dice: 0.0000 | IoU: 0.0000

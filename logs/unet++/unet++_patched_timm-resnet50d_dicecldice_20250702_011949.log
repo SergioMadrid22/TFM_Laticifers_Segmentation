@@ -1,0 +1,24 @@
+2025-07-02 01:19:49 INFO Starting training with configuration: {'model': {'name': 'unet++', 'alias': 'unet_timm-resnest50d', 'encoder_name': 'timm-resnest50d', 'encoder_weights': 'imagenet', 'in_channels': 1, 'classes': 1, 'activation': 'sigmoid', 'dropout': 0.0}, 'dataset': {'root': '/home/smadper/TFM/datasets/laticifers', 'image_size': [512, 512], 'patch_size': [512, 512], 'stride': [256, 256], 'num_patches': 20, 'dataset_csv': 'laticifer_dataset_index.csv', 'num_workers': 8, 'dist_transform': True}, 'train': {'batch_size': 4, 'num_epochs': 50, 'learning_rate': 0.001, 'accumulation_steps': 4, 'save_dir': '/home/smadper/TFM/checkpoints', 'log_interval': 1, 'patience': 5, 'experiment_name': 'unet++_patched_timm-resnet50d_dicecldice', 'timestamp': '20250702_011949'}, 'test': {'batch_size': 1, 'save_dir': '/home/smadper/TFM/results'}, 'loss': {'name': 'dice_cldice', 'cldice_alpha': 0.3, 'use_topographic': True, 'combine_with': 'dice', 'weights': {'main': 1.0, 'combined': 0}, 'topo': {'alpha': 2.0, 'beta': 1.0}}}
+2025-07-02 01:19:49 INFO Loading model unet++ with settings {'name': 'unet++', 'alias': 'unet_timm-resnest50d', 'encoder_name': 'timm-resnest50d', 'encoder_weights': 'imagenet', 'in_channels': 1, 'classes': 1, 'activation': 'sigmoid', 'dropout': 0.0}
+2025-07-02 01:19:50 INFO Loading pretrained weights from Hugging Face hub (timm/resnest50d.in1k)
+2025-07-02 01:19:50 INFO [timm/resnest50d.in1k] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+2025-07-02 01:19:50 INFO Converted input conv conv1.0 pretrained weights from 3 to 1 channel(s)
+2025-07-02 01:19:50 INFO Missing keys (fc.weight, fc.bias) discovered while loading pretrained weights. This is expected if model is being adapted.
+2025-07-02 01:22:54 INFO Epoch 001 | Train Loss: 0.7475 | Val Loss: 0.6930 | Dice: 0.3669 | IoU: 0.2247 | LR: 0.001000
+2025-07-02 01:25:59 INFO Epoch 002 | Train Loss: 0.6169 | Val Loss: 0.6229 | Dice: 0.3834 | IoU: 0.2374 | LR: 0.001000
+2025-07-02 01:29:04 INFO Epoch 003 | Train Loss: 0.5874 | Val Loss: 0.5854 | Dice: 0.3878 | IoU: 0.2407 | LR: 0.001000
+2025-07-02 01:32:09 INFO Epoch 004 | Train Loss: 0.5780 | Val Loss: 0.5789 | Dice: 0.3847 | IoU: 0.2383 | LR: 0.001000
+2025-07-02 01:35:12 INFO Epoch 005 | Train Loss: 0.5636 | Val Loss: 0.5811 | Dice: 0.3954 | IoU: 0.2465 | LR: 0.001000
+2025-07-02 01:38:14 INFO Epoch 006 | Train Loss: 0.5764 | Val Loss: 0.6971 | Dice: 0.2727 | IoU: 0.1580 | LR: 0.001000
+2025-07-02 01:41:16 INFO Epoch 007 | Train Loss: 0.5922 | Val Loss: 0.6141 | Dice: 0.3457 | IoU: 0.2092 | LR: 0.001000
+2025-07-02 01:44:21 INFO Epoch 008 | Train Loss: 0.5771 | Val Loss: 0.5609 | Dice: 0.4081 | IoU: 0.2565 | LR: 0.001000
+2025-07-02 01:47:24 INFO Epoch 009 | Train Loss: 0.5772 | Val Loss: 0.5949 | Dice: 0.3540 | IoU: 0.2154 | LR: 0.001000
+2025-07-02 01:50:29 INFO Epoch 010 | Train Loss: 0.5700 | Val Loss: 0.5512 | Dice: 0.4189 | IoU: 0.2651 | LR: 0.001000
+2025-07-02 01:53:35 INFO Epoch 011 | Train Loss: 0.5726 | Val Loss: 0.5447 | Dice: 0.4089 | IoU: 0.2571 | LR: 0.001000
+2025-07-02 01:56:41 INFO Epoch 012 | Train Loss: 0.5504 | Val Loss: 0.5366 | Dice: 0.4182 | IoU: 0.2645 | LR: 0.001000
+2025-07-02 01:59:43 INFO Epoch 013 | Train Loss: 0.5523 | Val Loss: 0.5495 | Dice: 0.4096 | IoU: 0.2575 | LR: 0.001000
+2025-07-02 02:02:46 INFO Epoch 014 | Train Loss: 0.5615 | Val Loss: 0.5369 | Dice: 0.4151 | IoU: 0.2619 | LR: 0.001000
+2025-07-02 02:05:49 INFO Epoch 015 | Train Loss: 0.5955 | Val Loss: 0.5967 | Dice: 0.3351 | IoU: 0.2015 | LR: 0.001000
+2025-07-02 02:08:52 INFO Epoch 016 | Train Loss: 0.7241 | Val Loss: 0.8103 | Dice: 0.2021 | IoU: 0.1126 | LR: 0.001000
+2025-07-02 02:11:55 INFO Early stopping at epoch 17 | Best Dice: 0.4189 at epoch 12
+2025-07-02 02:12:54 INFO Test Loss: 0.5366 | Dice: 0.4182 | IoU: 0.2645

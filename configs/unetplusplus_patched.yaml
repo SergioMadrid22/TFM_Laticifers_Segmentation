@@ -1,0 +1,43 @@
+model:
+  name: 'unet++'
+  alias: 'unet++_densenet121'
+  encoder_name: 'densenet121'
+  encoder_weights: imagenet
+  in_channels: 1
+  classes: 1
+  activation: 'sigmoid'
+  dropout: 0.0
+
+dataset:
+  root: '/home/smadper/TFM/datasets/laticifers'
+  image_size: [512, 512]
+  patch_size: [512, 512]
+  stride: [256, 256]
+  num_patches: 20
+  dataset_csv: 'laticifer_dataset_index.csv'
+  num_workers: 8
+
+train:
+  batch_size: 4
+  num_epochs: 50
+  learning_rate: 0.001
+  accumulation_steps: 4
+  save_dir: '/home/smadper/TFM/checkpoints'
+  log_interval: 1
+  patience: 5
+
+test:
+  batch_size: 1
+  save_dir: '/home/smadper/TFM/results'
+
+loss:
+  name: dice_cldice       # Options: bce, dice, tversky, focal_tversky
+  cldice_alpha: 0.1
+  use_topographic: true     # If true, uses distance-weighted loss
+  combine_with: dice        # Optional: another loss to combine with
+  weights:
+    main: 1.0
+    combined: 0
+  topo:
+    alpha: 2.0
+    beta: 1.0

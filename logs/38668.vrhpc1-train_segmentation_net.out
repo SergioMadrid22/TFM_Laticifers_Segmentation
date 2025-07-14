@@ -1,0 +1,32 @@
+/data/smadper@alumno.upv.es/TFM/env/lib/python3.8/site-packages/albumentations/__init__.py:13: UserWarning: A new version of Albumentations is available: 2.0.8 (you have 1.4.18). Upgrade using: pip install -U albumentations. To disable automatic update checks, set the environment variable NO_ALBUMENTATIONS_UPDATE to 1.
+  check_for_updates()
+2025-07-11 03:52:44 INFO Starting training with configuration: {'model': {'name': 'unet', 'alias': 'unet_densenet121', 'encoder_name': 'densenet121', 'encoder_weights': 'imagenet', 'in_channels': 1, 'classes': 1, 'activation': 'sigmoid', 'dropout': 0.0}, 'dataset': {'root': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers', 'image_size': [512, 512], 'patch_size': [512, 512], 'stride': [256, 256], 'num_patches': 40, 'dataset_csv': 'laticifer_dataset_index.csv', 'num_workers': 8, 'dist_transform': True}, 'train': {'batch_size': 16, 'num_epochs': 50, 'learning_rate': 0.001, 'accumulation_steps': 1, 'save_dir': '/data/smadper@alumno.upv.es/TFM/checkpoints', 'log_interval': 1, 'patience': 10, 'experiment_name': 'unet_topobce_dice_otsu', 'timestamp': '20250711_035244'}, 'test': {'batch_size': 1, 'save_dir': '/data/smadper@alumno.upv.es/TFM/results'}, 'loss': {'name': 'bce', 'cldice_alpha': 0.3, 'use_topographic': True, 'combine_with': 'dice', 'weights': {'main': 1.0, 'combined': 0.5}, 'topo': {'alpha': 2.0, 'beta': 1.0}}}
+2025-07-11 03:52:44 INFO Experiment name: unet_topobce_dice_otsu
+2025-07-11 03:52:44 INFO Loading model unet with settings {'name': 'unet', 'alias': 'unet_densenet121', 'encoder_name': 'densenet121', 'encoder_weights': 'imagenet', 'in_channels': 1, 'classes': 1, 'activation': 'sigmoid', 'dropout': 0.0}
+2025-07-11 03:53:56 INFO Epoch 001 | Train Loss: 0.3070 | Val Loss: 0.1541 | Dice: 0.0000 | IoU: 0.0000 | LR: 0.001000
+2025-07-11 03:55:06 INFO Epoch 002 | Train Loss: 0.1689 | Val Loss: 0.1285 | Dice: 0.0000 | IoU: 0.0000 | LR: 0.001000
+2025-07-11 03:56:17 INFO Epoch 003 | Train Loss: 0.1553 | Val Loss: 0.1250 | Dice: 0.0000 | IoU: 0.0000 | LR: 0.001000
+2025-07-11 03:57:27 INFO Epoch 004 | Train Loss: 0.1500 | Val Loss: 0.1151 | Dice: 0.0000 | IoU: 0.0000 | LR: 0.001000
+2025-07-11 03:58:37 INFO Epoch 005 | Train Loss: 0.1428 | Val Loss: 0.1156 | Dice: 0.0043 | IoU: 0.0021 | LR: 0.001000
+2025-07-11 03:59:46 INFO Epoch 006 | Train Loss: 0.1451 | Val Loss: 0.1158 | Dice: 0.0028 | IoU: 0.0014 | LR: 0.001000
+2025-07-11 04:00:56 INFO Epoch 007 | Train Loss: 0.1418 | Val Loss: 0.1181 | Dice: 0.0172 | IoU: 0.0087 | LR: 0.001000
+2025-07-11 04:02:05 INFO Epoch 008 | Train Loss: 0.1381 | Val Loss: 0.1134 | Dice: 0.0012 | IoU: 0.0006 | LR: 0.001000
+2025-07-11 04:03:14 INFO Epoch 009 | Train Loss: 0.1399 | Val Loss: 0.1126 | Dice: 0.0049 | IoU: 0.0025 | LR: 0.001000
+2025-07-11 04:04:24 INFO Epoch 010 | Train Loss: 0.1348 | Val Loss: 0.1095 | Dice: 0.0001 | IoU: 0.0000 | LR: 0.001000
+2025-07-11 04:05:34 INFO Epoch 011 | Train Loss: 0.1348 | Val Loss: 0.1106 | Dice: 0.0441 | IoU: 0.0227 | LR: 0.001000
+2025-07-11 04:06:43 INFO Epoch 012 | Train Loss: 0.1348 | Val Loss: 0.1094 | Dice: 0.0139 | IoU: 0.0070 | LR: 0.001000
+2025-07-11 04:07:51 INFO Epoch 013 | Train Loss: 0.1339 | Val Loss: 0.1125 | Dice: 0.0047 | IoU: 0.0023 | LR: 0.001000
+2025-07-11 04:09:00 INFO Epoch 014 | Train Loss: 0.1340 | Val Loss: 0.1101 | Dice: 0.0096 | IoU: 0.0048 | LR: 0.001000
+2025-07-11 04:10:10 INFO Epoch 015 | Train Loss: 0.1293 | Val Loss: 0.1123 | Dice: 0.0033 | IoU: 0.0016 | LR: 0.001000
+2025-07-11 04:11:19 INFO Epoch 016 | Train Loss: 0.1348 | Val Loss: 0.1078 | Dice: 0.1143 | IoU: 0.0612 | LR: 0.001000
+2025-07-11 04:12:30 INFO Epoch 017 | Train Loss: 0.1364 | Val Loss: 0.1089 | Dice: 0.0120 | IoU: 0.0060 | LR: 0.001000
+2025-07-11 04:13:38 INFO Epoch 018 | Train Loss: 0.1277 | Val Loss: 0.1109 | Dice: 0.0682 | IoU: 0.0354 | LR: 0.001000
+2025-07-11 04:14:47 INFO Epoch 019 | Train Loss: 0.1297 | Val Loss: 0.1153 | Dice: 0.0552 | IoU: 0.0285 | LR: 0.001000
+2025-07-11 04:15:56 INFO Epoch 020 | Train Loss: 0.1274 | Val Loss: 0.1098 | Dice: 0.0686 | IoU: 0.0356 | LR: 0.001000
+2025-07-11 04:17:05 INFO Epoch 021 | Train Loss: 0.1260 | Val Loss: 0.1126 | Dice: 0.1361 | IoU: 0.0732 | LR: 0.001000
+2025-07-11 04:18:14 INFO Epoch 022 | Train Loss: 0.1241 | Val Loss: 0.1101 | Dice: 0.0805 | IoU: 0.0422 | LR: 0.001000
+2025-07-11 04:19:22 INFO Epoch 023 | Train Loss: 0.1278 | Val Loss: 0.1109 | Dice: 0.0610 | IoU: 0.0316 | LR: 0.001000
+2025-07-11 04:20:31 INFO Epoch 024 | Train Loss: 0.1269 | Val Loss: 0.1136 | Dice: 0.0441 | IoU: 0.0226 | LR: 0.001000
+2025-07-11 04:21:40 INFO Epoch 025 | Train Loss: 0.1243 | Val Loss: 0.1108 | Dice: 0.0992 | IoU: 0.0525 | LR: 0.001000
+2025-07-11 04:22:50 INFO Early stopping at epoch 26 | Best Dice: 0.1722 at epoch 16
+2025-07-11 04:23:23 INFO Test Loss: 0.1078 | Dice: 0.1143 | IoU: 0.0612

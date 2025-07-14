@@ -1,0 +1,25 @@
+{
+    "timestamp": "2025-06-29 23:09:16",
+    "model_name": "unet++",
+    "experiment_name": "unet++_patched_timm-resnet50d",
+    "encoder": "resnet34",
+    "encoder_weights": "None",
+    "best_dice": 0.4552900716662407,
+    "best_epoch": 1.1810598075389862,
+    "loss_function": "focal_tversky",
+    "topographic_weighting": true,
+    "combine_with": "dice",
+    "topo_alpha": 2.0,
+    "topo_beta": 1.0,
+    "train_params": {
+        "batch_size": 8,
+        "num_epochs": 50,
+        "learning_rate": 0.0001,
+        "accumulation_steps": 1,
+        "save_dir": "/home/smadper/TFM/checkpoints",
+        "log_interval": 1,
+        "patience": 10,
+        "experiment_name": "unet++_patched_timm-resnet50d",
+        "timestamp": "20250629_223916"
+    }
+}

@@ -1,0 +1,17 @@
+2025-07-02 04:22:05 INFO Starting training with configuration: {'model': {'name': 'unet++', 'alias': 'unet++_densenet121', 'encoder_name': 'densenet121', 'encoder_weights': 'imagenet', 'in_channels': 1, 'classes': 1, 'activation': 'sigmoid', 'dropout': 0.0}, 'dataset': {'root': '/home/smadper/TFM/datasets/laticifers', 'image_size': [512, 512], 'patch_size': [512, 512], 'stride': [256, 256], 'num_patches': 20, 'dataset_csv': 'laticifer_dataset_index.csv', 'num_workers': 8, 'dist_transform': True}, 'train': {'batch_size': 4, 'num_epochs': 50, 'learning_rate': 0.001, 'accumulation_steps': 4, 'save_dir': '/home/smadper/TFM/checkpoints', 'log_interval': 1, 'patience': 5, 'experiment_name': 'unet++_patched_overlapped_combined_topoloss', 'timestamp': '20250702_042205'}, 'test': {'batch_size': 1, 'save_dir': '/home/smadper/TFM/results'}, 'loss': {'name': 'dice_cldice', 'cldice_alpha': 0.1, 'use_topographic': True, 'combine_with': 'dice', 'weights': {'main': 1.0, 'combined': 0}, 'topo': {'alpha': 2.0, 'beta': 1.0}}}
+2025-07-02 04:22:05 INFO Loading model unet++ with settings {'name': 'unet++', 'alias': 'unet++_densenet121', 'encoder_name': 'densenet121', 'encoder_weights': 'imagenet', 'in_channels': 1, 'classes': 1, 'activation': 'sigmoid', 'dropout': 0.0}
+2025-07-02 04:24:15 INFO Epoch 001 | Train Loss: 0.7906 | Val Loss: 0.5441 | Dice: 0.5219 | IoU: 0.4186 | LR: 0.001000
+2025-07-02 04:26:25 INFO Epoch 002 | Train Loss: 0.5314 | Val Loss: 0.4690 | Dice: 0.5238 | IoU: 0.4221 | LR: 0.001000
+2025-07-02 04:28:35 INFO Epoch 003 | Train Loss: 0.4859 | Val Loss: 0.4447 | Dice: 0.5669 | IoU: 0.4588 | LR: 0.001000
+2025-07-02 04:30:44 INFO Epoch 004 | Train Loss: 0.4655 | Val Loss: 0.4400 | Dice: 0.5587 | IoU: 0.4521 | LR: 0.001000
+2025-07-02 04:32:54 INFO Epoch 005 | Train Loss: 0.4528 | Val Loss: 0.4313 | Dice: 0.5483 | IoU: 0.4453 | LR: 0.001000
+2025-07-02 04:35:03 INFO Epoch 006 | Train Loss: 0.4474 | Val Loss: 0.4234 | Dice: 0.5609 | IoU: 0.4540 | LR: 0.001000
+2025-07-02 04:37:11 INFO Epoch 007 | Train Loss: 0.4434 | Val Loss: 0.4276 | Dice: 0.5510 | IoU: 0.4474 | LR: 0.001000
+2025-07-02 04:39:19 INFO Epoch 008 | Train Loss: 0.4423 | Val Loss: 0.4258 | Dice: 0.5728 | IoU: 0.4637 | LR: 0.001000
+2025-07-02 04:41:29 INFO Epoch 009 | Train Loss: 0.4350 | Val Loss: 0.4126 | Dice: 0.5761 | IoU: 0.4682 | LR: 0.001000
+2025-07-02 04:43:38 INFO Epoch 010 | Train Loss: 0.4329 | Val Loss: 0.4254 | Dice: 0.5573 | IoU: 0.4520 | LR: 0.001000
+2025-07-02 04:45:46 INFO Epoch 011 | Train Loss: 0.4266 | Val Loss: 0.4354 | Dice: 0.5363 | IoU: 0.4350 | LR: 0.001000
+2025-07-02 04:47:55 INFO Epoch 012 | Train Loss: 0.4219 | Val Loss: 0.4210 | Dice: 0.5602 | IoU: 0.4546 | LR: 0.001000
+2025-07-02 04:50:03 INFO Epoch 013 | Train Loss: 0.4197 | Val Loss: 0.4135 | Dice: 0.5686 | IoU: 0.4614 | LR: 0.001000
+2025-07-02 04:52:11 INFO Early stopping at epoch 14 | Best Dice: 0.5761 at epoch 9
+2025-07-02 04:53:05 INFO Test Loss: 0.4126 | Dice: 0.5761 | IoU: 0.4682
