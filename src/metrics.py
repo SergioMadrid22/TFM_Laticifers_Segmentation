@@ -1,4 +1,11 @@
 import torch.nn.functional as F
+import numpy as np
+from scipy.ndimage import distance_transform_edt
+import numpy as np
+from scipy.spatial.distance import directed_hausdorff
+import cv2
+import torch
+from clDice.cldice_metric.cldice import clDice as compute_cldice
 
 # METRICS
 def compute_iou(preds, targets, threshold=0.5, eps=1e-7):
@@ -15,6 +22,7 @@ def compute_dice(preds, targets, threshold=0.5, eps=1e-7):
     dice = (2. * intersection + eps) / (union + eps)
     return dice.mean().item()
 
+
 def compute_tversky(preds, targets, alpha=0.5, beta=0.5, threshold=0.5, eps=1e-7):
     preds = (preds > threshold).float()
     targets = targets.float()
@@ -25,6 +33,97 @@ def compute_tversky(preds, targets, alpha=0.5, beta=0.5, threshold=0.5, eps=1e-7
 
     tversky = (tp + eps) / (tp + alpha * fp + beta * fn + eps)
     return tversky.mean().item()
+
+def compute_hausdorff(preds, targets, threshold=0.5):
+    """
+    Compute the average symmetric Hausdorff distance for a batch.
+    Assumes preds and targets are tensors of shape (B, 1, H, W).
+    """
+    preds = (preds > threshold).cpu().numpy().astype(np.uint8)
+    targets = targets.cpu().numpy().astype(np.uint8)
+
+    batch_size = preds.shape[0]
+    distances = []
+
+    for i in range(batch_size):
+        pred_coords = np.argwhere(preds[i, 0])
+        target_coords = np.argwhere(targets[i, 0])
+
+        if len(pred_coords) == 0 or len(target_coords) == 0:
+            distances.append(np.nan)  # Undefined for empty mask
+            continue
+
+        hd_forward = directed_hausdorff(pred_coords, target_coords)[0]
+        hd_backward = directed_hausdorff(target_coords, pred_coords)[0]
+        symmetric_hd = max(hd_forward, hd_backward)
+
+        distances.append(symmetric_hd)
+
+    return np.nanmean(distances)
+
+def compute_hd95(preds, targets, threshold=0.5):
+    """
+    Compute the average symmetric 95th percentile Hausdorff distance (HD95) for a batch.
+    """
+    preds = (preds > threshold).cpu().numpy().astype(np.uint8)
+    targets = targets.cpu().numpy().astype(np.uint8)
+
+    batch_size = preds.shape[0]
+    distances = []
+
+    for i in range(batch_size):
+        pred = preds[i, 0]
+        target = targets[i, 0]
+
+        if pred.sum() == 0 or target.sum() == 0:
+            distances.append(np.nan)
+            continue
+
+        # Get edges
+        pred_edges = pred - cv2.erode(pred, None)
+        target_edges = target - cv2.erode(target, None)
+
+        # Distance transforms
+        dt_pred = distance_transform_edt(1 - pred_edges)
+        dt_target = distance_transform_edt(1 - target_edges)
+
+        # Surface distances
+        surface_distances_pred_to_target = dt_target[pred_edges == 1]
+        surface_distances_target_to_pred = dt_pred[target_edges == 1]
+
+        if len(surface_distances_pred_to_target) == 0 or len(surface_distances_target_to_pred) == 0:
+            distances.append(np.nan)
+            continue
+
+        hd95 = np.percentile(np.hstack((surface_distances_pred_to_target, surface_distances_target_to_pred)), 95)
+        distances.append(hd95)
+
+    return np.nanmean(distances)
+
+def compute_metrics(preds, targets, threshold=0.5, alpha=0.5, beta=0.5):
+    """
+    Computes multiple segmentation metrics in one call.
+
+    Args:
+        preds (torch.Tensor): Predicted masks of shape (B, 1, H, W).
+        targets (torch.Tensor): Ground truth masks of shape (B, 1, H, W).
+        threshold (float): Threshold to binarize predictions.
+        alpha (float): Tversky loss alpha parameter.
+        beta (float): Tversky loss beta parameter.
+
+    Returns:
+        dict: Dictionary with computed metrics.
+    """
+    metrics = {}
+
+    metrics['Dice'] = compute_dice(preds, targets, threshold)
+    metrics['clDice'] = compute_cldice(preds.squeeze(), targets.squeeze(), threshold=threshold)
+    metrics['IoU'] = compute_iou(preds, targets, threshold)
+    metrics['Tversky'] = compute_tversky(preds, targets, alpha, beta, threshold)
+    metrics['Hausdorff'] = compute_hausdorff(preds, targets, threshold)
+    metrics['HD95'] = compute_hd95(preds, targets, threshold)
+
+    return metrics
 
 # LOSSES
 def compute_soft_dice(pred, target, eps=1e-7):
@@ -57,23 +156,6 @@ def focal_tversky_loss(pred, target, alpha=0.5, beta=0.5, gamma=0.75, eps=1e-7):
     """Focal Tversky Loss: penalizes harder-to-segment pixels more."""
     tversky = compute_soft_tversky(pred, target, alpha, beta, eps)
     return (1 - tversky) ** gamma
-
-
-
-def compute_iou(preds, targets, threshold=0.5, eps=1e-7):
-    preds = (preds > threshold).float()
-    intersection = (preds * targets).sum(dim=(1, 2, 3))
-    union = preds.sum(dim=(1, 2, 3)) + targets.sum(dim=(1, 2, 3)) - intersection
-    iou = (intersection + eps) / (union + eps)
-    return iou.mean().item()
-
-
-def compute_dice(preds, targets, threshold=0.5, eps=1e-7):
-    preds = (preds > threshold).float()
-    intersection = (preds * targets).sum(dim=(1, 2, 3))
-    union = preds.sum(dim=(1, 2, 3)) + targets.sum(dim=(1, 2, 3))
-    dice = (2. * intersection + eps) / (union + eps)
-    return dice.mean().item()
 
 
 def dice_loss(pred, target, eps=1e-7):
@@ -236,3 +318,36 @@ def bce_dice_topographic_loss(preds, targets, distance_maps, alpha=2.0, dice_wei
     loss = topo_bce + dice_weight * dice_l
     return loss
 
+
+def hausdorff_loss(preds, targets, eps=1e-7):
+    """
+    Compute a differentiable approximation of Hausdorff Distance Loss.
+    Based on: https://arxiv.org/abs/1904.10030 (Karimi et al.)
+    """
+    if not (preds.shape == targets.shape):
+        raise ValueError("Shape mismatch between preds and targets")
+
+    preds = preds.squeeze(1)  # (B, H, W)
+    targets = targets.squeeze(1)
+
+    loss = 0.0
+    batch_size = preds.shape[0]
+
+    for i in range(batch_size):
+        pred = preds[i]
+        target = targets[i]
+
+        pred_np = pred.detach().cpu().numpy()
+        target_np = target.detach().cpu().numpy()
+
+        # Distance transforms on boundaries
+        dist_target = torch.tensor(distance_transform_edt(1 - target_np), device=pred.device, dtype=pred.dtype)
+        dist_pred = torch.tensor(distance_transform_edt(1 - pred_np), device=pred.device, dtype=pred.dtype)
+
+        # Hausdorff loss from both directions
+        term_1 = pred * dist_target
+        term_2 = target * dist_pred
+
+        loss += (term_1.mean() + term_2.mean()) / 2
+
+    return loss / batch_size

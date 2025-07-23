@@ -3,41 +3,51 @@ model:
   alias: 'unet_densenet121'
   encoder_name: 'densenet121'
   encoder_weights: imagenet
-  in_channels: 1
+  in_channels: 2
   classes: 1
   activation: 'sigmoid'
-  dropout: 0.0
+  dropout: 0.2
 
 dataset:
   root: '/data/smadper@alumno.upv.es/TFM/datasets/laticifers'
-  image_size: [512, 512]
   patch_size: [512, 512]
   stride: [256, 256]
   num_patches: 40
   dataset_csv: 'laticifer_dataset_index.csv'
-  num_workers: 8
+  num_workers: 4
+  positive_ratio: 0.8
+  fg_threshold: 0.04
+  dist_transform: true
+
+  feature_dirs:
+    enhanced: '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/enhanced_images'
+    sato: '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/sato_images'
+    #otsu: '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/otsu_images'
+    mask: '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/masks'
+    distance: '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/distance_maps_pt'
+
 
 train:
   batch_size: 16
-  num_epochs: 50
+  num_epochs: 70
   learning_rate: 0.001
   accumulation_steps: 1
   save_dir: '/data/smadper@alumno.upv.es/TFM/checkpoints'
   log_interval: 1
   patience: 10
+  mixed_precision: true
 
 test:
   batch_size: 1
-  save_dir: '/data/smadper@alumno.upv.es/TFM/results'
 
 loss:
-  name: "bce"       # Options: bce, dice, tversky, focal_tversky, ...
+  name: "hausdorff"       # Options: bce, dice, tversky, focal_tversky, ...
   cldice_alpha: 0.3
   use_topographic: false     # If true, uses distance-weighted loss
-  combine_with: dice        # Optional: another loss to combine with
+  combine_with: "dice"        # Optional: another loss to combine with
   weights:
-    main: 1.0
-    combined: 0.5
+    main: 1
+    combined: 1
   topo:
     alpha: 2.0
     beta: 1.0

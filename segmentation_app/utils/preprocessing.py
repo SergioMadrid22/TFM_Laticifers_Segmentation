@@ -1,13 +1,13 @@
 import cv2
 import numpy as np
+import torch
+import numpy as np
+import torch.nn.functional as F
 
 def apply_clahe(image):
     clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
     return clahe.apply(image)
 
-import torch
-import numpy as np
-import torch.nn.functional as F
 
 def predict_image(model, image_np, patch_size=512, stride=256, threshold=0.5, device="cpu"):
     """

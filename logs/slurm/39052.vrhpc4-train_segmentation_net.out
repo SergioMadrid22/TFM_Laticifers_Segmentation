@@ -1,0 +1,43 @@
+2025-07-23 01:03:15 INFO Starting training with configuration: {'model': {'name': 'unet', 'alias': 'unet_timm-resnest50d', 'encoder_name': 'timm-resnest50d', 'encoder_weights': 'imagenet', 'in_channels': 1, 'classes': 1, 'activation': 'sigmoid', 'dropout': 0.2}, 'dataset': {'root': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers', 'patch_size': [512, 512], 'stride': [256, 256], 'num_patches': 40, 'dataset_csv': 'laticifer_dataset_index.csv', 'num_workers': 8, 'positive_ratio': 0.8, 'fg_threshold': 0.04, 'dist_transform': True, 'feature_dirs': {'enhanced': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/enhanced_images', 'mask': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/masks', 'distance': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/distance_maps_pt'}}, 'train': {'batch_size': 16, 'num_epochs': 70, 'learning_rate': 0.001, 'accumulation_steps': 1, 'save_dir': '/data/smadper@alumno.upv.es/TFM/checkpoints/unet/20250723_010315_unet_timm-resnest50d_bce_dice', 'log_interval': 1, 'patience': 10, 'mixed_precision': True, 'experiment_name': 'unet_timm-resnest50d_bce_dice', 'timestamp': '20250723_010315'}, 'test': {'batch_size': 1}, 'loss': {'name': 'bce', 'cldice_alpha': 0.3, 'use_topographic': False, 'combine_with': 'dice', 'weights': {'main': 1, 'combined': 1}, 'topo': {'alpha': 2.0, 'beta': 1.0}}}
+2025-07-23 01:03:15 INFO Experiment name: unet_timm-resnest50d_bce_dice
+2025-07-23 01:03:15 INFO Loading model unet with settings {'name': 'unet', 'alias': 'unet_timm-resnest50d', 'encoder_name': 'timm-resnest50d', 'encoder_weights': 'imagenet', 'in_channels': 1, 'classes': 1, 'activation': 'sigmoid', 'dropout': 0.2}
+2025-07-23 01:03:16 INFO Loading pretrained weights from Hugging Face hub (timm/resnest50d.in1k)
+2025-07-23 01:03:16 INFO [timm/resnest50d.in1k] Safe alternative available for 'pytorch_model.bin' (as 'model.safetensors'). Loading weights using safetensors.
+2025-07-23 01:03:16 INFO Converted input conv conv1.0 pretrained weights from 3 to 1 channel(s)
+2025-07-23 01:03:16 INFO Missing keys (fc.weight, fc.bias) discovered while loading pretrained weights. This is expected if model is being adapted.
+2025-07-23 01:04:39 INFO Epoch 001 | Train Loss: 1.0997 | Val Loss: 0.8380 | Dice: 0.4195 | clDice: 0.4576 | IoU: 0.2660 | Tversky: 0.4195 | Hausdorff: 420.1725 | HD95: 78.7575 | LR: 0.001000
+2025-07-23 01:06:02 INFO Epoch 002 | Train Loss: 0.8226 | Val Loss: 0.7493 | Dice: 0.4422 | clDice: 0.4823 | IoU: 0.2843 | Tversky: 0.4422 | Hausdorff: 268.5742 | HD95: 61.8446 | LR: 0.001000
+2025-07-23 01:07:25 INFO Epoch 003 | Train Loss: 0.7895 | Val Loss: 0.7298 | Dice: 0.4546 | clDice: 0.4939 | IoU: 0.2945 | Tversky: 0.4546 | Hausdorff: 268.4222 | HD95: 59.4189 | LR: 0.001000
+2025-07-23 01:08:47 INFO Epoch 004 | Train Loss: 0.7773 | Val Loss: 0.7341 | Dice: 0.4463 | clDice: 0.4853 | IoU: 0.2878 | Tversky: 0.4463 | Hausdorff: 362.8831 | HD95: 65.7352 | LR: 0.001000
+2025-07-23 01:10:13 INFO Epoch 005 | Train Loss: 0.7703 | Val Loss: 0.7063 | Dice: 0.4780 | clDice: 0.5275 | IoU: 0.3145 | Tversky: 0.4780 | Hausdorff: 287.7486 | HD95: 40.4399 | LR: 0.001000
+2025-07-23 01:11:34 INFO Epoch 006 | Train Loss: 0.7645 | Val Loss: 0.7102 | Dice: 0.4611 | clDice: 0.5023 | IoU: 0.3002 | Tversky: 0.4611 | Hausdorff: 265.4625 | HD95: 44.2323 | LR: 0.001000
+2025-07-23 01:12:59 INFO Epoch 007 | Train Loss: 0.7575 | Val Loss: 0.6985 | Dice: 0.4771 | clDice: 0.5262 | IoU: 0.3137 | Tversky: 0.4771 | Hausdorff: 245.9756 | HD95: 40.8476 | LR: 0.001000
+2025-07-23 01:14:19 INFO Epoch 008 | Train Loss: 0.7536 | Val Loss: 0.7031 | Dice: 0.4692 | clDice: 0.5098 | IoU: 0.3070 | Tversky: 0.4692 | Hausdorff: 246.6566 | HD95: 37.9536 | LR: 0.001000
+2025-07-23 01:15:35 INFO Epoch 009 | Train Loss: 0.7567 | Val Loss: 0.6903 | Dice: 0.4759 | clDice: 0.5147 | IoU: 0.3127 | Tversky: 0.4759 | Hausdorff: 242.7440 | HD95: 40.9882 | LR: 0.001000
+2025-07-23 01:16:48 INFO Epoch 010 | Train Loss: 0.7498 | Val Loss: 0.7109 | Dice: 0.4644 | clDice: 0.5037 | IoU: 0.3029 | Tversky: 0.4644 | Hausdorff: 238.3961 | HD95: 34.3179 | LR: 0.001000
+2025-07-23 01:18:05 INFO Epoch 011 | Train Loss: 0.7520 | Val Loss: 0.6922 | Dice: 0.4787 | clDice: 0.5213 | IoU: 0.3151 | Tversky: 0.4787 | Hausdorff: 240.3318 | HD95: 37.2576 | LR: 0.001000
+2025-07-23 01:19:28 INFO Epoch 012 | Train Loss: 0.7433 | Val Loss: 0.7100 | Dice: 0.4608 | clDice: 0.4986 | IoU: 0.3001 | Tversky: 0.4608 | Hausdorff: 495.6756 | HD95: 38.4567 | LR: 0.001000
+2025-07-23 01:20:49 INFO Epoch 013 | Train Loss: 0.7480 | Val Loss: 0.6941 | Dice: 0.4850 | clDice: 0.5331 | IoU: 0.3206 | Tversky: 0.4850 | Hausdorff: 272.6929 | HD95: 35.2596 | LR: 0.001000
+2025-07-23 01:22:00 INFO Epoch 014 | Train Loss: 0.7475 | Val Loss: 0.7004 | Dice: 0.4735 | clDice: 0.5174 | IoU: 0.3106 | Tversky: 0.4735 | Hausdorff: 243.1900 | HD95: 33.0337 | LR: 0.001000
+2025-07-23 01:23:24 INFO Epoch 015 | Train Loss: 0.7385 | Val Loss: 0.7045 | Dice: 0.4644 | clDice: 0.5054 | IoU: 0.3027 | Tversky: 0.4644 | Hausdorff: 243.9567 | HD95: 46.9190 | LR: 0.001000
+2025-07-23 01:24:49 INFO Epoch 016 | Train Loss: 0.7449 | Val Loss: 0.6947 | Dice: 0.4757 | clDice: 0.5162 | IoU: 0.3125 | Tversky: 0.4757 | Hausdorff: 241.3123 | HD95: 35.4911 | LR: 0.001000
+2025-07-23 01:26:11 INFO Epoch 017 | Train Loss: 0.7410 | Val Loss: 0.7005 | Dice: 0.4647 | clDice: 0.5001 | IoU: 0.3031 | Tversky: 0.4647 | Hausdorff: 248.8285 | HD95: 45.2424 | LR: 0.001000
+2025-07-23 01:27:25 INFO Epoch 018 | Train Loss: 0.7349 | Val Loss: 0.6914 | Dice: 0.4792 | clDice: 0.5255 | IoU: 0.3154 | Tversky: 0.4792 | Hausdorff: 252.4908 | HD95: 35.1306 | LR: 0.001000
+2025-07-23 01:28:40 INFO Epoch 019 | Train Loss: 0.7389 | Val Loss: 0.6829 | Dice: 0.4842 | clDice: 0.5297 | IoU: 0.3198 | Tversky: 0.4842 | Hausdorff: 247.9812 | HD95: 35.7998 | LR: 0.001000
+2025-07-23 01:30:04 INFO Epoch 020 | Train Loss: 0.7401 | Val Loss: 0.6869 | Dice: 0.4780 | clDice: 0.5211 | IoU: 0.3146 | Tversky: 0.4780 | Hausdorff: 259.0697 | HD95: 35.9579 | LR: 0.001000
+2025-07-23 01:31:27 INFO Epoch 021 | Train Loss: 0.7351 | Val Loss: 0.6873 | Dice: 0.4876 | clDice: 0.5394 | IoU: 0.3229 | Tversky: 0.4876 | Hausdorff: 254.0137 | HD95: 32.3012 | LR: 0.001000
+2025-07-23 01:32:46 INFO Epoch 022 | Train Loss: 0.7351 | Val Loss: 0.7011 | Dice: 0.4809 | clDice: 0.5232 | IoU: 0.3169 | Tversky: 0.4809 | Hausdorff: 517.6371 | HD95: 35.8014 | LR: 0.001000
+2025-07-23 01:33:57 INFO Epoch 023 | Train Loss: 0.7317 | Val Loss: 0.7012 | Dice: 0.4763 | clDice: 0.5183 | IoU: 0.3132 | Tversky: 0.4763 | Hausdorff: 527.5936 | HD95: 36.2620 | LR: 0.001000
+2025-07-23 01:35:18 INFO Epoch 024 | Train Loss: 0.7378 | Val Loss: 0.6865 | Dice: 0.4806 | clDice: 0.5253 | IoU: 0.3167 | Tversky: 0.4806 | Hausdorff: 260.6970 | HD95: 33.7157 | LR: 0.001000
+2025-07-23 01:36:37 INFO Epoch 025 | Train Loss: 0.7305 | Val Loss: 0.6842 | Dice: 0.4811 | clDice: 0.5242 | IoU: 0.3173 | Tversky: 0.4811 | Hausdorff: 243.3844 | HD95: 36.5066 | LR: 0.001000
+2025-07-23 01:37:54 INFO Epoch 026 | Train Loss: 0.7323 | Val Loss: 0.6889 | Dice: 0.4819 | clDice: 0.5292 | IoU: 0.3178 | Tversky: 0.4819 | Hausdorff: 239.6527 | HD95: 31.4510 | LR: 0.001000
+2025-07-23 01:39:17 INFO Epoch 027 | Train Loss: 0.7277 | Val Loss: 0.6880 | Dice: 0.4854 | clDice: 0.5346 | IoU: 0.3210 | Tversky: 0.4854 | Hausdorff: 244.2670 | HD95: 33.4772 | LR: 0.001000
+2025-07-23 01:40:36 INFO Epoch 028 | Train Loss: 0.7313 | Val Loss: 0.6935 | Dice: 0.4742 | clDice: 0.5223 | IoU: 0.3111 | Tversky: 0.4742 | Hausdorff: 241.0114 | HD95: 39.6943 | LR: 0.001000
+2025-07-23 01:42:00 INFO Early stopping at epoch 29 | Best Dice: 0.4876 at epoch 19
+Traceback (most recent call last):
+  File "/data/smadper@alumno.upv.es/TFM/src/train.py", line 214, in <module>
+    main(conf)
+  File "/data/smadper@alumno.upv.es/TFM/src/train.py", line 181, in main
+    best_model_path, best_dice, best_cldice, best_val_loss, best_epoch = train_model(model, train_loader, test_loader, conf)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: not enough values to unpack (expected 5, got 4)

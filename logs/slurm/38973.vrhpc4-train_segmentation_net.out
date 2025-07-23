@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/data/smadper@alumno.upv.es/TFM/src/train.py", line 11, in <module>
+    from clDice.cldice_metric.cldice import clDice as compute_cldice
+  File "/data/smadper@alumno.upv.es/TFM/src/clDice/cldice_metric/cldice.py", line 1, in <module>
+    from skimage.morphology import skeletonize, skeletonize_3d
+ImportError: cannot import name 'skeletonize_3d' from 'skimage.morphology' (/data/smadper@alumno.upv.es/miniconda3/envs/tfm/lib/python3.12/site-packages/skimage/morphology/__init__.py). Did you mean: 'skeletonize'?

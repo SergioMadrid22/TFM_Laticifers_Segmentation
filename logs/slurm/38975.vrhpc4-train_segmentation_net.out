@@ -1,0 +1,35 @@
+2025-07-21 22:22:29 INFO Starting training with configuration: {'model': {'name': 'unet', 'alias': 'unet_resnet18', 'encoder_name': 'resnet18', 'encoder_weights': 'imagenet', 'in_channels': 1, 'classes': 1, 'activation': 'sigmoid', 'dropout': 0.2}, 'dataset': {'root': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers', 'patch_size': [512, 512], 'stride': [256, 256], 'num_patches': 10, 'dataset_csv': 'laticifer_dataset_index.csv', 'num_workers': 8, 'positive_ratio': 0.8, 'fg_threshold': 0.04, 'dist_transform': True, 'feature_dirs': {'enhanced': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/enhanced_images', 'mask': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/masks', 'distance': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/distance_maps_pt'}}, 'train': {'batch_size': 16, 'num_epochs': 100, 'learning_rate': 0.001, 'accumulation_steps': 1, 'save_dir': '/data/smadper@alumno.upv.es/TFM/checkpoints', 'log_interval': 1, 'patience': 10, 'mixed_precision': True, 'experiment_name': 'unet_resnet18_imagenet', 'timestamp': '20250721_222229'}, 'test': {'batch_size': 1, 'save_dir': '/data/smadper@alumno.upv.es/TFM/results'}, 'loss': {'name': 'bce', 'cldice_alpha': 0.3, 'use_topographic': True, 'combine_with': 'dice', 'weights': {'main': 0.5, 'combined': 0.5}, 'topo': {'alpha': 2.0, 'beta': 1.0}}}
+2025-07-21 22:22:29 INFO Experiment name: unet_resnet18_imagenet
+2025-07-21 22:22:29 INFO Loading model unet with settings {'name': 'unet', 'alias': 'unet_resnet18', 'encoder_name': 'resnet18', 'encoder_weights': 'imagenet', 'in_channels': 1, 'classes': 1, 'activation': 'sigmoid', 'dropout': 0.2}
+/data/smadper@alumno.upv.es/TFM/src/datasets.py:240: UserWarning: Argument(s) 'alpha_affine' are not valid for transform ElasticTransform
+  A.ElasticTransform(alpha=120, sigma=120 * 0.05, alpha_affine=120 * 0.03, p=0.3),
+/data/smadper@alumno.upv.es/TFM/src/datasets.py:243: UserWarning: Argument(s) 'var_limit' are not valid for transform GaussNoise
+  A.GaussNoise(var_limit=(10.0, 50.0), p=0.2),
+/data/smadper@alumno.upv.es/TFM/src/train.py:134: FutureWarning: `torch.cuda.amp.GradScaler(args...)` is deprecated. Please use `torch.amp.GradScaler('cuda', args...)` instead.
+  scaler = GradScaler() if use_mixed_precision else None
+2025-07-21 22:22:29 INFO Mixed precision training enabled
+/data/smadper@alumno.upv.es/TFM/src/train.py:164: FutureWarning: `torch.cuda.amp.autocast(args...)` is deprecated. Please use `torch.amp.autocast('cuda', args...)` instead.
+  with autocast():
+Traceback (most recent call last):
+  File "/data/smadper@alumno.upv.es/TFM/src/train.py", line 268, in <module>
+    main(conf)
+  File "/data/smadper@alumno.upv.es/TFM/src/train.py", line 236, in main
+    best_model_path, best_dice, best_val_loss, best_epoch = train_model(model, train_loader, test_loader, conf)
+                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data/smadper@alumno.upv.es/TFM/src/train.py", line 168, in train_model
+    loss = loss_fn(outputs, masks, distances) / accumulation_steps
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data/smadper@alumno.upv.es/TFM/src/utils.py", line 62, in fn
+    return topographic_loss(preds, targets, dist, base_loss=name, alpha=topo_a, beta=topo_b, eps=eps)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data/smadper@alumno.upv.es/TFM/src/metrics.py", line 144, in topographic_loss
+    loss_map = F.binary_cross_entropy(preds, targets, reduction='none')
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data/smadper@alumno.upv.es/miniconda3/envs/tfm/lib/python3.12/site-packages/torch/nn/functional.py", line 3569, in binary_cross_entropy
+    return torch._C._nn.binary_cross_entropy(input, target, weight, reduction_enum)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: torch.nn.functional.binary_cross_entropy and torch.nn.BCELoss are unsafe to autocast.
+Many models use a sigmoid layer right before the binary cross entropy layer.
+In this case, combine the two layers using torch.nn.functional.binary_cross_entropy_with_logits
+or torch.nn.BCEWithLogitsLoss.  binary_cross_entropy_with_logits and BCEWithLogits are
+safe to autocast.

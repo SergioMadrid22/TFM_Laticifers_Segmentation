@@ -1,0 +1,23 @@
+/data/smadper@alumno.upv.es/TFM/env/lib/python3.8/site-packages/albumentations/__init__.py:13: UserWarning: A new version of Albumentations is available: 2.0.8 (you have 1.4.18). Upgrade using: pip install -U albumentations. To disable automatic update checks, set the environment variable NO_ALBUMENTATIONS_UPDATE to 1.
+  check_for_updates()
+2025-07-16 00:06:25 INFO Starting training with configuration: {'model': {'name': 'unet++', 'alias': 'unet++_densenet121', 'encoder_name': 'densenet121', 'encoder_weights': 'imagenet', 'in_channels': 1, 'classes': 1, 'activation': 'sigmoid', 'dropout': 0.0}, 'dataset': {'root': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers', 'image_size': [512, 512], 'patch_size': [512, 512], 'stride': [256, 256], 'num_patches': 20, 'dataset_csv': 'laticifer_dataset_index.csv', 'num_workers': 8, 'positive_ratio': 0.8, 'fg_threshold': 0.04, 'dist_transform': True, 'feature_dirs': {'enhanced': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/enhanced_images', 'mask': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/masks', 'distance': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/distance_maps_pt'}}, 'train': {'batch_size': 16, 'num_epochs': 50, 'learning_rate': 0.001, 'accumulation_steps': 1, 'save_dir': '/data/smadper@alumno.upv.es/TFM/checkpoints', 'log_interval': 1, 'patience': 5, 'experiment_name': 'unet++_positive_sampling', 'timestamp': '20250716_000625'}, 'test': {'batch_size': 1, 'save_dir': '/data/smadper@alumno.upv.es/TFM/results'}, 'loss': {'name': 'dice_cldice', 'cldice_alpha': 0.1, 'use_topographic': True, 'combine_with': 'dice', 'weights': {'main': 1.0, 'combined': 0}, 'topo': {'alpha': 2.0, 'beta': 1.0}}}
+2025-07-16 00:06:25 INFO Experiment name: unet++_positive_sampling
+2025-07-16 00:06:25 INFO Loading model unet++ with settings {'name': 'unet++', 'alias': 'unet++_densenet121', 'encoder_name': 'densenet121', 'encoder_weights': 'imagenet', 'in_channels': 1, 'classes': 1, 'activation': 'sigmoid', 'dropout': 0.0}
+2025-07-16 00:08:06 INFO Epoch 001 | Train Loss: 0.6996 | Val Loss: 0.6522 | Dice: 0.4227 | clDice: 0.5173 |IoU: 0.2682 | LR: 0.001000
+2025-07-16 00:09:43 INFO Epoch 002 | Train Loss: 0.5515 | Val Loss: 0.5727 | Dice: 0.4386 | clDice: 0.5260 |IoU: 0.2813 | LR: 0.001000
+2025-07-16 00:11:19 INFO Epoch 003 | Train Loss: 0.5317 | Val Loss: 0.5596 | Dice: 0.4537 | clDice: 0.4891 |IoU: 0.2935 | LR: 0.001000
+2025-07-16 00:12:55 INFO Epoch 004 | Train Loss: 0.5159 | Val Loss: 0.5529 | Dice: 0.4495 | clDice: 0.4839 |IoU: 0.2901 | LR: 0.001000
+2025-07-16 00:14:32 INFO Epoch 005 | Train Loss: 0.5100 | Val Loss: 0.5223 | Dice: 0.4725 | clDice: 0.5251 |IoU: 0.3096 | LR: 0.001000
+2025-07-16 00:16:08 INFO Epoch 006 | Train Loss: 0.5061 | Val Loss: 0.5207 | Dice: 0.4751 | clDice: 0.5226 |IoU: 0.3119 | LR: 0.001000
+2025-07-16 00:17:45 INFO Epoch 007 | Train Loss: 0.4992 | Val Loss: 0.5192 | Dice: 0.4762 | clDice: 0.5203 |IoU: 0.3127 | LR: 0.001000
+2025-07-16 00:19:21 INFO Epoch 008 | Train Loss: 0.5004 | Val Loss: 0.5183 | Dice: 0.4797 | clDice: 0.5299 |IoU: 0.3158 | LR: 0.001000
+2025-07-16 00:20:57 INFO Epoch 009 | Train Loss: 0.4993 | Val Loss: 0.5306 | Dice: 0.4661 | clDice: 0.5158 |IoU: 0.3041 | LR: 0.001000
+2025-07-16 00:22:33 INFO Epoch 010 | Train Loss: 0.4925 | Val Loss: 0.5168 | Dice: 0.4796 | clDice: 0.5332 |IoU: 0.3159 | LR: 0.001000
+2025-07-16 00:24:09 INFO Epoch 011 | Train Loss: 0.4954 | Val Loss: 0.5096 | Dice: 0.4854 | clDice: 0.5404 |IoU: 0.3207 | LR: 0.001000
+2025-07-16 00:25:46 INFO Epoch 012 | Train Loss: 0.4873 | Val Loss: 0.5063 | Dice: 0.4879 | clDice: 0.5319 |IoU: 0.3231 | LR: 0.001000
+2025-07-16 00:27:21 INFO Epoch 013 | Train Loss: 0.4839 | Val Loss: 0.5139 | Dice: 0.4808 | clDice: 0.5147 |IoU: 0.3170 | LR: 0.001000
+2025-07-16 00:28:56 INFO Epoch 014 | Train Loss: 0.4826 | Val Loss: 0.5134 | Dice: 0.4823 | clDice: 0.5324 |IoU: 0.3181 | LR: 0.001000
+2025-07-16 00:30:31 INFO Epoch 015 | Train Loss: 0.4855 | Val Loss: 0.5206 | Dice: 0.4756 | clDice: 0.5069 |IoU: 0.3124 | LR: 0.001000
+2025-07-16 00:32:06 INFO Epoch 016 | Train Loss: 0.4773 | Val Loss: 0.5369 | Dice: 0.4590 | clDice: 0.5046 |IoU: 0.2980 | LR: 0.001000
+2025-07-16 00:33:42 INFO Early stopping at epoch 17 | Best Dice: 0.4882 at epoch 12
+2025-07-16 00:34:25 INFO Test Loss: 0.5063 | Dice: 0.4879 | IoU: 0.3231 | clDice: 0.5319

@@ -16,3 +16,5 @@ __pycache__/
 .venv/
 ipynb_checkpoints/
 env/
+create*images.py
+launch*.sh

@@ -1,43 +1,52 @@
 model:
   name: 'unet++'
-  alias: 'unet++_densenet121'
-  encoder_name: 'densenet121'
+  alias: 'unet++_se_resnext50_32x4d'
+  encoder_name: 'se_resnext50_32x4d'
   encoder_weights: imagenet
   in_channels: 1
   classes: 1
   activation: 'sigmoid'
-  dropout: 0.0
+  dropout: 0.2
 
 dataset:
-  root: '/home/smadper/TFM/datasets/laticifers'
+  root: '/data/smadper@alumno.upv.es/TFM/datasets/laticifers'
   image_size: [512, 512]
   patch_size: [512, 512]
   stride: [256, 256]
   num_patches: 20
   dataset_csv: 'laticifer_dataset_index.csv'
   num_workers: 8
+  positive_ratio: 0.8
+  fg_threshold: 0.04
+  dist_transform: true
+
+  feature_dirs:
+    enhanced: '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/enhanced_images'
+    mask: '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/masks'
+    distance: '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/distance_maps_pt'
+
 
 train:
-  batch_size: 4
+  batch_size: 8
   num_epochs: 50
   learning_rate: 0.001
-  accumulation_steps: 4
-  save_dir: '/home/smadper/TFM/checkpoints'
+  accumulation_steps: 1
+  save_dir: '/data/smadper@alumno.upv.es/TFM/checkpoints'
   log_interval: 1
   patience: 5
 
 test:
   batch_size: 1
-  save_dir: '/home/smadper/TFM/results'
+  save_dir: '/data/smadper@alumno.upv.es/TFM/results'
 
 loss:
-  name: dice_cldice       # Options: bce, dice, tversky, focal_tversky
+  name: bce       # Options: bce, dice, tversky, focal_tversky
   cldice_alpha: 0.1
-  use_topographic: true     # If true, uses distance-weighted loss
+  use_topographic: false     # If true, uses distance-weighted loss
   combine_with: dice        # Optional: another loss to combine with
   weights:
-    main: 1.0
-    combined: 0
+    main: 0.5
+    combined: 0.5
   topo:
     alpha: 2.0
     beta: 1.0

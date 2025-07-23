@@ -187,7 +187,7 @@ def build_model(conf):
     
     model = model_class(
         encoder_name=conf['model']['encoder_name'],
-        encoder_weights=conf['model']['encoder_weights'] if 'None' not in conf['model']['encoder_weights'] else None,
+        encoder_weights=conf['model']['encoder_weights'],
         in_channels=conf['model']['in_channels'],
         classes=conf['model']['classes'],
         activation=conf['model'].get('activation', None),

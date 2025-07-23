@@ -1,0 +1,60 @@
+/data/smadper@alumno.upv.es/TFM/env/lib/python3.8/site-packages/albumentations/__init__.py:13: UserWarning: A new version of Albumentations is available: 2.0.8 (you have 1.4.18). Upgrade using: pip install -U albumentations. To disable automatic update checks, set the environment variable NO_ALBUMENTATIONS_UPDATE to 1.
+  check_for_updates()
+2025-07-20 20:41:23 INFO Starting training with configuration: {'model': {'name': 'unet', 'alias': 'unet_resnet34', 'encoder_name': 'resnet34', 'encoder_weights': 'imagenet', 'in_channels': 2, 'classes': 1, 'activation': 'sigmoid', 'dropout': 0.0}, 'dataset': {'root': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers', 'image_size': [512, 512], 'patch_size': [512, 512], 'stride': [256, 256], 'num_patches': 40, 'dataset_csv': 'laticifer_dataset_index.csv', 'num_workers': 8, 'positive_ratio': 0.8, 'fg_threshold': 0.04, 'dist_transform': True, 'feature_dirs': {'enhanced': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/enhanced_images', 'sato': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/sato_images', 'mask': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/masks', 'distance': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/distance_maps_pt'}}, 'train': {'batch_size': 16, 'num_epochs': 50, 'learning_rate': 0.001, 'accumulation_steps': 1, 'save_dir': '/data/smadper@alumno.upv.es/TFM/checkpoints', 'log_interval': 1, 'patience': 10, 'experiment_name': 'unet_sato_resnet34', 'timestamp': '20250720_204123'}, 'test': {'batch_size': 1, 'save_dir': '/data/smadper@alumno.upv.es/TFM/results'}, 'loss': {'name': 'bce', 'cldice_alpha': 0.3, 'use_topographic': False, 'combine_with': 'dice', 'weights': {'main': 0.5, 'combined': 0.5}, 'topo': {'alpha': 2.0, 'beta': 1.0}}}
+2025-07-20 20:41:23 INFO Experiment name: unet_sato_resnet34
+2025-07-20 20:41:23 INFO Loading model unet with settings {'name': 'unet', 'alias': 'unet_resnet34', 'encoder_name': 'resnet34', 'encoder_weights': 'imagenet', 'in_channels': 2, 'classes': 1, 'activation': 'sigmoid', 'dropout': 0.0}
+Downloading: "https://download.pytorch.org/models/resnet34-333f7ec4.pth" to /data/smadper@alumno.upv.es/.cache/torch/hub/checkpoints/resnet34-333f7ec4.pth
+  0%|          | 0.00/83.3M [00:00<?, ?B/s]  6%|▌         | 5.12M/83.3M [00:00<00:01, 52.8MB/s] 15%|█▍        | 12.1M/83.3M [00:00<00:01, 64.5MB/s] 27%|██▋       | 22.4M/83.3M [00:00<00:00, 83.8MB/s] 42%|████▏     | 34.6M/83.3M [00:00<00:00, 96.1MB/s] 55%|█████▍    | 45.5M/83.3M [00:00<00:00, 102MB/s]  68%|██████▊   | 56.6M/83.3M [00:00<00:00, 106MB/s] 85%|████████▌ | 70.9M/83.3M [00:00<00:00, 118MB/s]100%|█████████▉| 82.9M/83.3M [00:00<00:00, 121MB/s]100%|██████████| 83.3M/83.3M [00:00<00:00, 106MB/s]
+/data/smadper@alumno.upv.es/TFM/src/datasets.py:240: UserWarning: Argument 'alpha_affine' is not valid and will be ignored.
+  A.ElasticTransform(alpha=120, sigma=120 * 0.05, alpha_affine=120 * 0.03, p=0.3),
+2025-07-20 20:42:37 INFO Epoch 001 | Train Loss: 0.5954 | Val Loss: 0.4829 | Dice: 0.3134 | clDice: 0.3570 |IoU: 0.1860 | LR: 0.001000
+2025-07-20 20:43:47 INFO Epoch 002 | Train Loss: 0.5110 | Val Loss: 0.4812 | Dice: 0.3267 | clDice: 0.4082 |IoU: 0.1961 | LR: 0.001000
+2025-07-20 20:44:59 INFO Epoch 003 | Train Loss: 0.4850 | Val Loss: 0.4432 | Dice: 0.3790 | clDice: 0.4364 |IoU: 0.2340 | LR: 0.001000
+2025-07-20 20:46:11 INFO Epoch 004 | Train Loss: 0.4820 | Val Loss: 0.4001 | Dice: 0.4196 | clDice: 0.4677 |IoU: 0.2657 | LR: 0.001000
+2025-07-20 20:47:22 INFO Epoch 005 | Train Loss: 0.4718 | Val Loss: 0.3854 | Dice: 0.4202 | clDice: 0.4655 |IoU: 0.2660 | LR: 0.001000
+2025-07-20 20:48:36 INFO Epoch 006 | Train Loss: 0.4680 | Val Loss: 0.3695 | Dice: 0.4494 | clDice: 0.4899 |IoU: 0.2899 | LR: 0.001000
+2025-07-20 20:49:45 INFO Epoch 007 | Train Loss: 0.4664 | Val Loss: 0.3846 | Dice: 0.4449 | clDice: 0.4828 |IoU: 0.2863 | LR: 0.001000
+2025-07-20 20:50:56 INFO Epoch 008 | Train Loss: 0.4603 | Val Loss: 0.3724 | Dice: 0.4497 | clDice: 0.4753 |IoU: 0.2903 | LR: 0.001000
+2025-07-20 20:52:03 INFO Epoch 009 | Train Loss: 0.4633 | Val Loss: 0.3892 | Dice: 0.4327 | clDice: 0.4781 |IoU: 0.2763 | LR: 0.001000
+2025-07-20 20:53:15 INFO Epoch 010 | Train Loss: 0.4612 | Val Loss: 0.3628 | Dice: 0.4701 | clDice: 0.5126 |IoU: 0.3075 | LR: 0.001000
+2025-07-20 20:54:27 INFO Epoch 011 | Train Loss: 0.4587 | Val Loss: 0.3806 | Dice: 0.4509 | clDice: 0.4913 |IoU: 0.2911 | LR: 0.001000
+2025-07-20 20:55:35 INFO Epoch 012 | Train Loss: 0.4562 | Val Loss: 0.3781 | Dice: 0.4490 | clDice: 0.4792 |IoU: 0.2896 | LR: 0.001000
+2025-07-20 20:56:46 INFO Epoch 013 | Train Loss: 0.4529 | Val Loss: 0.3561 | Dice: 0.4741 | clDice: 0.5060 |IoU: 0.3108 | LR: 0.001000
+2025-07-20 20:57:58 INFO Epoch 014 | Train Loss: 0.4510 | Val Loss: 0.3596 | Dice: 0.4735 | clDice: 0.5239 |IoU: 0.3104 | LR: 0.001000
+2025-07-20 20:59:07 INFO Epoch 015 | Train Loss: 0.4490 | Val Loss: 0.3616 | Dice: 0.4652 | clDice: 0.5103 |IoU: 0.3033 | LR: 0.001000
+2025-07-20 21:00:14 INFO Epoch 016 | Train Loss: 0.4511 | Val Loss: 0.3599 | Dice: 0.4748 | clDice: 0.5216 |IoU: 0.3116 | LR: 0.001000
+2025-07-20 21:01:22 INFO Epoch 017 | Train Loss: 0.4432 | Val Loss: 0.3603 | Dice: 0.4692 | clDice: 0.4970 |IoU: 0.3069 | LR: 0.001000
+2025-07-20 21:02:32 INFO Epoch 018 | Train Loss: 0.4488 | Val Loss: 0.3585 | Dice: 0.4710 | clDice: 0.5066 |IoU: 0.3082 | LR: 0.001000
+2025-07-20 21:03:38 INFO Epoch 019 | Train Loss: 0.4451 | Val Loss: 0.3584 | Dice: 0.4766 | clDice: 0.5231 |IoU: 0.3132 | LR: 0.001000
+2025-07-20 21:04:46 INFO Epoch 020 | Train Loss: 0.4467 | Val Loss: 0.3613 | Dice: 0.4612 | clDice: 0.4815 |IoU: 0.2999 | LR: 0.001000
+2025-07-20 21:05:57 INFO Epoch 021 | Train Loss: 0.4463 | Val Loss: 0.3495 | Dice: 0.4832 | clDice: 0.5125 |IoU: 0.3188 | LR: 0.001000
+2025-07-20 21:07:03 INFO Epoch 022 | Train Loss: 0.4439 | Val Loss: 0.3554 | Dice: 0.4776 | clDice: 0.5028 |IoU: 0.3140 | LR: 0.001000
+2025-07-20 21:08:12 INFO Epoch 023 | Train Loss: 0.4401 | Val Loss: 0.3548 | Dice: 0.4822 | clDice: 0.5109 |IoU: 0.3180 | LR: 0.001000
+2025-07-20 21:09:23 INFO Epoch 024 | Train Loss: 0.4407 | Val Loss: 0.3527 | Dice: 0.4765 | clDice: 0.5114 |IoU: 0.3131 | LR: 0.001000
+2025-07-20 21:10:31 INFO Epoch 025 | Train Loss: 0.4447 | Val Loss: 0.3631 | Dice: 0.4763 | clDice: 0.5067 |IoU: 0.3127 | LR: 0.001000
+2025-07-20 21:11:42 INFO Epoch 026 | Train Loss: 0.4435 | Val Loss: 0.3543 | Dice: 0.4818 | clDice: 0.5256 |IoU: 0.3177 | LR: 0.001000
+2025-07-20 21:12:56 INFO Epoch 027 | Train Loss: 0.4456 | Val Loss: 0.3559 | Dice: 0.4674 | clDice: 0.5140 |IoU: 0.3052 | LR: 0.001000
+2025-07-20 21:14:03 INFO Epoch 028 | Train Loss: 0.4419 | Val Loss: 0.3480 | Dice: 0.4839 | clDice: 0.5154 |IoU: 0.3194 | LR: 0.001000
+2025-07-20 21:15:12 INFO Epoch 029 | Train Loss: 0.4413 | Val Loss: 0.3476 | Dice: 0.4858 | clDice: 0.5367 |IoU: 0.3210 | LR: 0.001000
+2025-07-20 21:16:21 INFO Epoch 030 | Train Loss: 0.4375 | Val Loss: 0.3541 | Dice: 0.4706 | clDice: 0.5071 |IoU: 0.3078 | LR: 0.001000
+2025-07-20 21:17:33 INFO Epoch 031 | Train Loss: 0.4369 | Val Loss: 0.3516 | Dice: 0.4806 | clDice: 0.5181 |IoU: 0.3165 | LR: 0.001000
+2025-07-20 21:18:42 INFO Epoch 032 | Train Loss: 0.4358 | Val Loss: 0.3443 | Dice: 0.4909 | clDice: 0.5287 |IoU: 0.3255 | LR: 0.001000
+2025-07-20 21:19:55 INFO Epoch 033 | Train Loss: 0.4334 | Val Loss: 0.3468 | Dice: 0.4877 | clDice: 0.5185 |IoU: 0.3227 | LR: 0.001000
+2025-07-20 21:21:05 INFO Epoch 034 | Train Loss: 0.4352 | Val Loss: 0.3417 | Dice: 0.4887 | clDice: 0.5275 |IoU: 0.3237 | LR: 0.001000
+2025-07-20 21:22:16 INFO Epoch 035 | Train Loss: 0.4410 | Val Loss: 0.3494 | Dice: 0.4741 | clDice: 0.5110 |IoU: 0.3109 | LR: 0.001000
+2025-07-20 21:23:28 INFO Epoch 036 | Train Loss: 0.4364 | Val Loss: 0.3421 | Dice: 0.4898 | clDice: 0.5266 |IoU: 0.3246 | LR: 0.001000
+2025-07-20 21:24:37 INFO Epoch 037 | Train Loss: 0.4380 | Val Loss: 0.3476 | Dice: 0.4810 | clDice: 0.5136 |IoU: 0.3168 | LR: 0.001000
+2025-07-20 21:25:45 INFO Epoch 038 | Train Loss: 0.4381 | Val Loss: 0.3523 | Dice: 0.4882 | clDice: 0.5335 |IoU: 0.3231 | LR: 0.001000
+2025-07-20 21:26:52 INFO Epoch 039 | Train Loss: 0.4347 | Val Loss: 0.3441 | Dice: 0.4866 | clDice: 0.5300 |IoU: 0.3218 | LR: 0.001000
+2025-07-20 21:28:03 INFO Epoch 040 | Train Loss: 0.4368 | Val Loss: 0.3389 | Dice: 0.4916 | clDice: 0.5222 |IoU: 0.3261 | LR: 0.001000
+2025-07-20 21:29:16 INFO Epoch 041 | Train Loss: 0.4366 | Val Loss: 0.3452 | Dice: 0.4907 | clDice: 0.5431 |IoU: 0.3254 | LR: 0.001000
+2025-07-20 21:30:24 INFO Epoch 042 | Train Loss: 0.4401 | Val Loss: 0.3395 | Dice: 0.4930 | clDice: 0.5259 |IoU: 0.3275 | LR: 0.001000
+2025-07-20 21:31:34 INFO Epoch 043 | Train Loss: 0.4374 | Val Loss: 0.3442 | Dice: 0.4941 | clDice: 0.5341 |IoU: 0.3283 | LR: 0.001000
+2025-07-20 21:32:42 INFO Epoch 044 | Train Loss: 0.4343 | Val Loss: 0.3482 | Dice: 0.4840 | clDice: 0.5162 |IoU: 0.3195 | LR: 0.001000
+2025-07-20 21:33:52 INFO Epoch 045 | Train Loss: 0.4339 | Val Loss: 0.3423 | Dice: 0.4857 | clDice: 0.5088 |IoU: 0.3211 | LR: 0.001000
+2025-07-20 21:35:01 INFO Epoch 046 | Train Loss: 0.4329 | Val Loss: 0.3426 | Dice: 0.4939 | clDice: 0.5402 |IoU: 0.3282 | LR: 0.001000
+2025-07-20 21:36:13 INFO Epoch 047 | Train Loss: 0.4351 | Val Loss: 0.3398 | Dice: 0.4889 | clDice: 0.5169 |IoU: 0.3239 | LR: 0.001000
+2025-07-20 21:37:23 INFO Epoch 048 | Train Loss: 0.4329 | Val Loss: 0.3410 | Dice: 0.4929 | clDice: 0.5236 |IoU: 0.3274 | LR: 0.001000
+2025-07-20 21:38:32 INFO Epoch 049 | Train Loss: 0.4323 | Val Loss: 0.3458 | Dice: 0.4912 | clDice: 0.5298 |IoU: 0.3259 | LR: 0.001000
+2025-07-20 21:39:46 INFO Early stopping at epoch 50 | Best Dice: 0.4941 at epoch 40
+2025-07-20 21:40:00 INFO Test Loss: 0.3389 | Dice: 0.4916 | IoU: 0.3261 | clDice: 0.5222

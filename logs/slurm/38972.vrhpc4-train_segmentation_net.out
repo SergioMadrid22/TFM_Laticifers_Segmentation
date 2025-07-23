@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/data/smadper@alumno.upv.es/TFM/src/train.py", line 6, in <module>
+    from models import build_model
+  File "/data/smadper@alumno.upv.es/TFM/src/models.py", line 7, in <module>
+    from einops import rearrange
+ModuleNotFoundError: No module named 'einops'
