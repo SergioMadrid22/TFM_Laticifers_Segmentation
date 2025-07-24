@@ -1,0 +1,21 @@
+2025-07-23 12:43:03 INFO Starting training with configuration: {'model': {'name': 'unet', 'alias': 'unet_densenet121', 'encoder_name': 'densenet121', 'encoder_weights': 'imagenet', 'in_channels': 2, 'classes': 1, 'activation': 'sigmoid', 'dropout': 0.2}, 'dataset': {'root': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers', 'patch_size': [512, 512], 'stride': [256, 256], 'num_patches': 40, 'dataset_csv': 'laticifer_dataset_index.csv', 'num_workers': 4, 'positive_ratio': 0.8, 'fg_threshold': 0.04, 'dist_transform': True, 'feature_dirs': {'enhanced': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/enhanced_images', 'sato': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/sato_images', 'mask': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/masks', 'distance': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/distance_maps_pt'}}, 'train': {'batch_size': 16, 'num_epochs': 70, 'learning_rate': 0.001, 'accumulation_steps': 1, 'save_dir': '/data/smadper@alumno.upv.es/TFM/checkpoints/unet/20250723_124303_unet_densenet121_clahe_sato_full_aug_2', 'log_interval': 1, 'patience': 10, 'mixed_precision': True, 'experiment_name': 'unet_densenet121_clahe_sato_full_aug_2', 'timestamp': '20250723_124303'}, 'test': {'batch_size': 1}, 'loss': {'name': 'hausdorff', 'cldice_alpha': 0.3, 'use_topographic': False, 'combine_with': 'dice', 'weights': {'main': 1, 'combined': 1}, 'topo': {'alpha': 2.0, 'beta': 1.0}}}
+2025-07-23 12:43:03 INFO Experiment name: unet_densenet121_clahe_sato_full_aug_2
+2025-07-23 12:43:03 INFO Loading model unet with settings {'name': 'unet', 'alias': 'unet_densenet121', 'encoder_name': 'densenet121', 'encoder_weights': 'imagenet', 'in_channels': 2, 'classes': 1, 'activation': 'sigmoid', 'dropout': 0.2}
+/data/smadper@alumno.upv.es/TFM/src/metrics.py:62: RuntimeWarning: Mean of empty slice
+  return np.nanmean(distances)
+/data/smadper@alumno.upv.es/TFM/src/metrics.py:101: RuntimeWarning: Mean of empty slice
+  return np.nanmean(distances)
+/data/smadper@alumno.upv.es/TFM/src/train.py:100: RuntimeWarning: Mean of empty slice
+  avg_metrics = {k: np.nanmean(v) for k, v in all_metrics.items()}
+Traceback (most recent call last):
+  File "/data/smadper@alumno.upv.es/TFM/src/train.py", line 214, in <module>
+    main(conf)
+  File "/data/smadper@alumno.upv.es/TFM/src/train.py", line 181, in main
+    best_model_path, best_dice, best_cldice, best_val_loss, best_epoch = train_model(model, train_loader, test_loader, conf)
+                                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data/smadper@alumno.upv.es/TFM/src/train.py", line 158, in train_model
+    model.save_pretrained(model, os.path.join(save_dir, "best_model.pth"))
+  File "/data/smadper@alumno.upv.es/miniconda3/envs/tfm/lib/python3.12/site-packages/segmentation_models_pytorch/base/hub_mixin.py", line 111, in save_pretrained
+    result = super().save_pretrained(save_directory, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: ModelHubMixin.save_pretrained() takes 2 positional arguments but 3 positional arguments (and 1 keyword-only argument) were given

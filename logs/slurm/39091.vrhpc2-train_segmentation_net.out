@@ -1,0 +1,19 @@
+/data/smadper@alumno.upv.es/TFM/env/lib/python3.8/site-packages/albumentations/__init__.py:13: UserWarning: A new version of Albumentations is available: 2.0.8 (you have 1.4.18). Upgrade using: pip install -U albumentations. To disable automatic update checks, set the environment variable NO_ALBUMENTATIONS_UPDATE to 1.
+  check_for_updates()
+2025-07-23 12:29:29 INFO Starting training with configuration: {'model': {'name': 'unet', 'alias': 'unet_densenet121', 'encoder_name': 'densenet121', 'encoder_weights': 'imagenet', 'in_channels': 2, 'classes': 1, 'activation': 'sigmoid', 'dropout': 0.2}, 'dataset': {'root': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers', 'patch_size': [512, 512], 'stride': [256, 256], 'num_patches': 40, 'dataset_csv': 'laticifer_dataset_index.csv', 'num_workers': 4, 'positive_ratio': 0.8, 'fg_threshold': 0.04, 'dist_transform': True, 'feature_dirs': {'enhanced': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/enhanced_images', 'sato': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/sato_images', 'mask': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/masks', 'distance': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/distance_maps_pt'}}, 'train': {'batch_size': 16, 'num_epochs': 70, 'learning_rate': 0.001, 'accumulation_steps': 1, 'save_dir': '/data/smadper@alumno.upv.es/TFM/checkpoints/unet/20250723_122929_unet_densenet121_clahe_sato', 'log_interval': 1, 'patience': 10, 'mixed_precision': True, 'experiment_name': 'unet_densenet121_clahe_sato', 'timestamp': '20250723_122929'}, 'test': {'batch_size': 1}, 'loss': {'name': 'hausdorff', 'cldice_alpha': 0.3, 'use_topographic': False, 'combine_with': 'dice', 'weights': {'main': 1, 'combined': 1}, 'topo': {'alpha': 2.0, 'beta': 1.0}}}
+2025-07-23 12:29:29 INFO Experiment name: unet_densenet121_clahe_sato
+2025-07-23 12:29:29 INFO Loading model unet with settings {'name': 'unet', 'alias': 'unet_densenet121', 'encoder_name': 'densenet121', 'encoder_weights': 'imagenet', 'in_channels': 2, 'classes': 1, 'activation': 'sigmoid', 'dropout': 0.2}
+/data/smadper@alumno.upv.es/TFM/src/datasets.py:243: UserWarning: Argument 'std_range' is not valid and will be ignored.
+  A.GaussNoise(std_range=(0.02, 0.1), mean_range=(0.0, 0.0), p=0.2),
+/data/smadper@alumno.upv.es/TFM/src/datasets.py:243: UserWarning: Argument 'mean_range' is not valid and will be ignored.
+  A.GaussNoise(std_range=(0.02, 0.1), mean_range=(0.0, 0.0), p=0.2),
+Traceback (most recent call last):
+  File "src/train.py", line 214, in <module>
+    main(conf)
+  File "src/train.py", line 181, in main
+    best_model_path, best_dice, best_cldice, best_val_loss, best_epoch = train_model(model, train_loader, test_loader, conf)
+  File "src/train.py", line 158, in train_model
+    model.save_pretrained(model, os.path.join(save_dir, "best_model.pth"))
+  File "/data/smadper@alumno.upv.es/TFM/env/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1729, in __getattr__
+    raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
+AttributeError: 'Unet' object has no attribute 'save_pretrained'
