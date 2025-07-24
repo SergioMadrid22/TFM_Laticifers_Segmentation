@@ -263,8 +263,8 @@ class LaticiferPatchTrain(Dataset):
         else:
             path = os.path.join(dir_path, fname)
             img = np.array(Image.open(path).convert("L")).astype(np.float32) #/ 255.0
-            if key == 'sato':
-                img = (img - img.min()) / (img.max() - img.min() + 1e-5) * 255.0
+            #if key == 'sato':
+            #    img = (img - img.min()) / (img.max() - img.min() + 1e-5) * 255.0
             return img
         
     def _random_patch_coords(self, H, W):
@@ -384,8 +384,8 @@ class LaticiferPatchTest(Dataset):
         else:
             path = os.path.join(dir_path, fname)
             img = np.array(Image.open(path).convert("L")).astype(np.float32) #/ 255.0
-            if key == 'sato':
-                img = (img - img.min()) / (img.max() - img.min() + 1e-5) * 255.0
+            #if key == 'sato':
+            #    img = (img - img.min()) / (img.max() - img.min() + 1e-5) * 255.0
             return img
 
     def __getitem__(self, idx):

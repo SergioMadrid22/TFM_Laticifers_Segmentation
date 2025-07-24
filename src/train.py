@@ -2,7 +2,7 @@ import argparse, yaml, os, torch, numpy as np, random, logging, datetime
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 from PIL import Image
-
+import segmentation_models_pytorch as smp
 from models import build_model
 from datasets import get_patch_dataloaders
 from metrics import compute_metrics
@@ -154,8 +154,8 @@ def train_model(model, train_loader, test_loader, conf):
             os.makedirs(save_dir, exist_ok=True)
             save_name = f"best_model.pth"
             best_model_path = os.path.join(save_dir, save_name)
-            torch.save(model.state_dict(), os.path.join(save_dir, "best_model_state_dict.pth"))
-            torch.save(model, os.path.join(save_dir, "best_model.pth"))
+            #torch.save(model.state_dict(), os.path.join(save_dir, "best_model_state_dict.pth"))
+            model.save_pretrained(model, os.path.join(save_dir, "best_model.pth"))
             
         else:
             counter += 1
@@ -181,7 +181,7 @@ def main(conf):
     best_model_path, best_dice, best_cldice, best_val_loss, best_epoch = train_model(model, train_loader, test_loader, conf)
     save_metadata(os.path.dirname(best_model_path), model, conf, best_dice, best_cldice, best_val_loss, best_epoch)
     #model.load_state_dict(torch.load(best_model_path))
-    model = torch.load(best_model_path, weights_only=False)
+    model = smp.from_pretrained(best_model_path, weights_only=False)
     save_dir = os.path.dirname(best_model_path)
     avg_val_loss, test_metrics = test_model(model, test_loader, conf, save_dir)
     logging.info(f"Test Loss: {avg_val_loss:.4f} | " + 

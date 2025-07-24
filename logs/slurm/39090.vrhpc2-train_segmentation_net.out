@@ -16,3 +16,18 @@
 2025-07-23 11:48:59 INFO Epoch 011 | Train Loss: 13.0635 | Val Loss: 8.6468 | Dice: 0.3899 | clDice: 0.4218 | IoU: 0.2427 | Tversky: 0.3899 | Hausdorff: 664.0075 | HD95: 150.6614 | LR: 0.001000
 2025-07-23 11:51:30 INFO Epoch 012 | Train Loss: 13.2503 | Val Loss: 8.6619 | Dice: 0.4317 | clDice: 0.4831 | IoU: 0.2759 | Tversky: 0.4317 | Hausdorff: 362.1366 | HD95: 99.7603 | LR: 0.001000
 2025-07-23 11:54:00 INFO Epoch 013 | Train Loss: 13.1195 | Val Loss: 8.6254 | Dice: 0.4228 | clDice: 0.4615 | IoU: 0.2686 | Tversky: 0.4228 | Hausdorff: 299.4890 | HD95: 82.4781 | LR: 0.001000
+2025-07-23 11:56:28 INFO Epoch 014 | Train Loss: 12.7521 | Val Loss: 8.9298 | Dice: 0.2173 | clDice: 0.2247 | IoU: 0.1225 | Tversky: 0.2173 | Hausdorff: 500.8796 | HD95: 213.1339 | LR: 0.001000
+2025-07-23 11:58:55 INFO Epoch 015 | Train Loss: 12.8858 | Val Loss: 8.7265 | Dice: 0.2213 | clDice: 0.2313 | IoU: 0.1249 | Tversky: 0.2213 | Hausdorff: 540.6654 | HD95: 308.2740 | LR: 0.001000
+2025-07-23 12:01:25 INFO Epoch 016 | Train Loss: 12.9433 | Val Loss: 8.7852 | Dice: 0.1668 | clDice: 0.1692 | IoU: 0.0922 | Tversky: 0.1668 | Hausdorff: 723.2540 | HD95: 245.6523 | LR: 0.001000
+2025-07-23 12:03:56 INFO Epoch 017 | Train Loss: 13.1156 | Val Loss: 8.5989 | Dice: 0.3771 | clDice: 0.4075 | IoU: 0.2334 | Tversky: 0.3771 | Hausdorff: 402.8054 | HD95: 136.7905 | LR: 0.001000
+2025-07-23 12:06:25 INFO Epoch 018 | Train Loss: 13.1334 | Val Loss: 8.6207 | Dice: 0.3727 | clDice: 0.4017 | IoU: 0.2304 | Tversky: 0.3727 | Hausdorff: 408.8583 | HD95: 152.5907 | LR: 0.001000
+2025-07-23 12:08:55 INFO Epoch 019 | Train Loss: 12.8718 | Val Loss: 8.6752 | Dice: 0.3719 | clDice: 0.3980 | IoU: 0.2293 | Tversky: 0.3719 | Hausdorff: 314.9229 | HD95: 103.4301 | LR: 0.001000
+2025-07-23 12:11:26 INFO Epoch 020 | Train Loss: 12.9727 | Val Loss: 8.6671 | Dice: 0.4325 | clDice: 0.4708 | IoU: 0.2764 | Tversky: 0.4325 | Hausdorff: 315.5452 | HD95: 78.9787 | LR: 0.001000
+2025-07-23 12:13:54 INFO Epoch 021 | Train Loss: 13.1265 | Val Loss: 8.7195 | Dice: 0.3352 | clDice: 0.3539 | IoU: 0.2038 | Tversky: 0.3352 | Hausdorff: 564.6917 | HD95: 139.2191 | LR: 0.001000
+2025-07-23 12:16:22 INFO Epoch 022 | Train Loss: 13.0601 | Val Loss: 8.8758 | Dice: 0.0364 | clDice: 0.0362 | IoU: 0.0186 | Tversky: 0.0364 | Hausdorff: 833.5005 | HD95: 463.5221 | LR: 0.001000
+2025-07-23 12:18:53 INFO Epoch 023 | Train Loss: 13.1819 | Val Loss: 8.7981 | Dice: 0.1350 | clDice: 0.1375 | IoU: 0.0732 | Tversky: 0.1350 | Hausdorff: 782.0489 | HD95: 258.5674 | LR: 0.001000
+2025-07-23 12:21:21 INFO Epoch 024 | Train Loss: 13.0663 | Val Loss: 8.6267 | Dice: 0.3588 | clDice: 0.3827 | IoU: 0.2191 | Tversky: 0.3588 | Hausdorff: 533.8037 | HD95: 118.8197 | LR: 0.001000
+2025-07-23 12:23:50 INFO Epoch 025 | Train Loss: 12.9018 | Val Loss: 8.7287 | Dice: 0.2245 | clDice: 0.2327 | IoU: 0.1273 | Tversky: 0.2245 | Hausdorff: 630.0676 | HD95: 194.1596 | LR: 0.001000
+2025-07-23 12:26:20 INFO Epoch 026 | Train Loss: 12.9150 | Val Loss: 8.6850 | Dice: 0.3269 | clDice: 0.3462 | IoU: 0.1984 | Tversky: 0.3269 | Hausdorff: 541.5800 | HD95: 143.1573 | LR: 0.001000
+2025-07-23 12:28:48 INFO Early stopping at epoch 27 | Best Dice: 0.4350 at epoch 17
+2025-07-23 12:29:20 INFO Test Loss: 8.5989 | Dice: 0.3771 | clDice: 0.4075 | IoU: 0.2334 | Tversky: 0.3771 | Hausdorff: 402.8054 | HD95: 136.7905
