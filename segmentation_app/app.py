@@ -8,7 +8,9 @@ from PIL import Image
 import sys
 import shutil
 from torch.utils.data import DataLoader
-
+from streamlit_cropper import st_cropper
+from streamlit_drawable_canvas import st_canvas
+from io import BytesIO
 # Add src to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -16,8 +18,22 @@ from src.datasets import LaticiferPatchTest
 from src.utils import reconstruct_from_patches
 from src.metrics import compute_dice, compute_iou
 
-st.set_page_config(page_title="Segmentation GUI", layout="centered")
+st.set_page_config(page_title="Segmentation GUI", layout="wide")
 st.title("🔬 Laticifer Segmentation Tool")
+
+st.markdown("""
+    <style>
+    .element-container {
+        max-width: 100% !important;
+    }
+    canvas {
+        image-rendering: pixelated;
+        width: 100% !important;
+        height: auto !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 
 MODEL_ROOT = "segmentation_app/checkpoints"
 
@@ -70,20 +86,36 @@ def find_best_threshold(pred_logits, gt_mask_np, num_thresholds=100):
 
     return best_thresh, best_dice
 
-
+@st.cache_resource
 def predict_with_dataset(model, pil_image, patch_size=(512, 512), stride=(256, 256), use_clahe=True):
     tmp_root = "temp_test_dataset"
-    os.makedirs(os.path.join(tmp_root, "gray_images"), exist_ok=True)
-    os.makedirs(os.path.join(tmp_root, "masks"), exist_ok=True)
+    os.makedirs(os.path.join(tmp_root, "enhanced"), exist_ok=True)
+    os.makedirs(os.path.join(tmp_root, "mask"), exist_ok=True)  # Dummy ground truth
 
     fname = "uploaded_image.png"
     image_np = np.array(pil_image.convert("L"))
-    pil_image.save(os.path.join(tmp_root, "gray_images", fname))
 
+    # Optionally apply CLAHE
+    enhanced_img = apply_clahe(image_np) if use_clahe else image_np
+    Image.fromarray(enhanced_img).save(os.path.join(tmp_root, "enhanced", fname))
+
+    # Create dummy mask
     dummy_mask = Image.fromarray(np.zeros_like(image_np, dtype=np.uint8))
-    dummy_mask.save(os.path.join(tmp_root, "masks", fname))
+    dummy_mask.save(os.path.join(tmp_root, "mask", fname))
 
-    dataset = LaticiferPatchTest([fname], root_dir=tmp_root, patch_size=patch_size, stride=stride, use_clahe=use_clahe)
+    # Build feature_dirs for dataset
+    feature_dirs = {
+        'enhanced': os.path.join(tmp_root, "enhanced"),
+        'mask': os.path.join(tmp_root, "mask"),
+    }
+
+    dataset = LaticiferPatchTest(
+        feature_dirs=feature_dirs,
+        patch_size=patch_size,
+        stride=stride,
+        dist_transform=False,
+        filenames=[fname]
+    )
     dataloader = DataLoader(dataset, batch_size=1, shuffle=False)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -92,6 +124,7 @@ def predict_with_dataset(model, pil_image, patch_size=(512, 512), stride=(256, 2
 
     pred_mask = None
     pred_logits = []
+
     for batch in dataloader:
         image_patches = batch['image_patches'].squeeze(0).to(device)
         coords = batch['coords']
@@ -108,12 +141,14 @@ def predict_with_dataset(model, pil_image, patch_size=(512, 512), stride=(256, 2
         pred_logits_full = reconstruct_from_patches(preds, coords, image_size, patch_size)
         pred_logits_full = pred_logits_full[:original_size[0], :original_size[1]].numpy()
         pred_mask = (pred_logits_full * 255).astype(np.uint8)
-        pred_logits = pred_logits_full  # Save for metric evaluation
+        pred_logits = pred_logits_full
 
+    # Clean up temp dir
     if os.path.exists(tmp_root):
         shutil.rmtree(tmp_root)
 
     return pred_mask, pred_logits
+
 
 def overlay_mask(image_gray, mask, color=(255, 0, 0), alpha=0.5):
     image_color = cv2.cvtColor(image_gray, cv2.COLOR_GRAY2RGB)
@@ -165,11 +200,11 @@ if uploaded_file is not None:
     image_np = np.array(image)
 
     st.subheader("Original Image")
-    st.image(image_np, use_container_width=True, clamp=True)
+    st.image(image_np, clamp=True)
 
     clahe_preview = apply_clahe(image_np)
     st.subheader("CLAHE Preprocessed (Preview)")
-    st.image(clahe_preview, use_container_width=True, clamp=True)
+    st.image(clahe_preview, clamp=True)
 
     pred_mask, pred_logits = predict_with_dataset(model, image)
 
@@ -192,16 +227,56 @@ if uploaded_file is not None:
 
     # Apply threshold to logits
     pred_mask_thresh = (pred_logits > st.session_state.threshold).astype(np.uint8) * 255
-    st.image(pred_mask_thresh, use_container_width=True, clamp=True)
+    st.image(pred_mask_thresh, clamp=True)
 
     # Overlay the thresholded mask
     st.subheader("Overlay: Thresholded Predicted Mask on Original Image")
     overlay_pred = overlay_mask(image_np, pred_mask_thresh)
-    st.image(overlay_pred, use_container_width=True)
+    st.image(overlay_pred)
 
     # Allow downloading thresholded mask
     result_img = Image.fromarray(pred_mask_thresh.astype(np.uint8), mode='L')
-    st.download_button("Download Thresholded Mask", result_img.tobytes(), file_name="segmented_thresholded.png")
+
+    buffer = BytesIO()
+    result_img.save(buffer, format="PNG")
+    st.download_button("Download Thresholded Mask", buffer.getvalue(), file_name="segmented_thresholded.png", mime="image/png")
+
+    st.subheader("🖌️ Mask Correction Tool")
+    print(f"Shape: {image_np.shape}")
+    # Display canvas for editing the predicted mask
+    overlay_pil = Image.fromarray(overlay_pred).convert("RGBA")
+    stroke_width = st.slider("🖌️ Pencil Width", min_value=1, max_value=50, value=3, step=1)
+    canvas_result = st_canvas(
+        fill_color="rgba(255, 0, 0, 0.5)",
+        stroke_width=stroke_width,
+        stroke_color="#ff0000",
+        background_color="#ffffff",
+        background_image=overlay_pil,
+        update_streamlit=True,
+        display_toolbar=True,
+        height=overlay_pil.height,
+        width=overlay_pil.width,
+        drawing_mode="freedraw",
+        key="canvas",
+    )
+
+    if canvas_result.image_data is not None:
+        canvas_img = canvas_result.image_data
+
+        # Convert RGBA canvas to binary mask
+        drawn_mask = np.array(canvas_img)[..., 0] > 100  # Red drawn areas
+        corrected_mask = np.array(pred_mask_thresh)  # Start from predicted
+
+        # Add drawn areas to prediction
+        corrected_mask[drawn_mask] = 255
+
+        st.subheader("✅ Corrected Mask Preview")
+        st.image(corrected_mask.astype(np.uint8), clamp=True)
+
+        corrected_pil = Image.fromarray(corrected_mask.astype(np.uint8), mode="L")
+        buffer_corrected = BytesIO()
+        corrected_pil.save(buffer_corrected, format="PNG")
+        st.download_button("Download Corrected Mask", buffer_corrected.getvalue(), file_name="corrected_mask.png", mime="image/png")
 
     # Optionally upload ground truth
     gt_mask_file = st.file_uploader("Optionally upload a ground truth mask", type=["png", "jpg", "tif", "tiff"])
@@ -210,11 +285,11 @@ if uploaded_file is not None:
         gt_mask_np = np.array(gt_mask)
 
         st.subheader("Ground Truth Mask")
-        st.image(gt_mask_np, use_container_width=True, clamp=True)
+        st.image(gt_mask_np, clamp=True)
 
         st.subheader("Overlay: Predicted (Red) vs Ground Truth (Green)")
         overlay_combined = overlay_two_masks(image_np, pred_mask, gt_mask_np)
-        st.image(overlay_combined, use_container_width=True)
+        st.image(overlay_combined)
 
         # --- Compute Metrics ---
         st.subheader("📊 Segmentation Metrics")
