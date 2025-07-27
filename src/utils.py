@@ -11,7 +11,49 @@ from metrics import (
 )
 import torch.nn.functional as F
 #sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "clDice")))
-from clDice.cldice_loss.cldice import soft_cldice, soft_dice_cldice 
+from clDice.cldice_loss.cldice import soft_cldice, soft_dice_cldice
+
+import numpy as np
+
+def patchify(image, patch_size, stride):
+    """
+    Extract patches from a 2D image.
+
+    Args:
+        image (np.ndarray): 2D image (H, W) or 3D (C, H, W).
+        patch_size (int or tuple): size of each patch (patch_h, patch_w)
+        stride (int or tuple): stride between patches (stride_h, stride_w)
+
+    Returns:
+        patches (List[np.ndarray]): list of patches
+        coords (List[Tuple[int, int]]): top-left (y, x) coordinates of each patch
+    """
+    if isinstance(patch_size, int):
+        patch_size = (patch_size, patch_size)
+    if isinstance(stride, int):
+        stride = (stride, stride)
+
+    if image.ndim == 2:
+        H, W = image.shape
+        get_patch = lambda y, x: image[y:y+patch_size[0], x:x+patch_size[1]]
+    elif image.ndim == 3:
+        C, H, W = image.shape
+        get_patch = lambda y, x: image[:, y:y+patch_size[0], x:x+patch_size[1]]
+    else:
+        raise ValueError("Image must be 2D or 3D (C, H, W)")
+
+    patches = []
+    coords = []
+
+    for y in range(0, H - patch_size[0] + 1, stride[0]):
+        for x in range(0, W - patch_size[1] + 1, stride[1]):
+            patch = get_patch(y, x)
+            if patch.shape[-2:] == patch_size:
+                patches.append(patch)
+                coords.append((y, x))
+
+    return patches, coords
+
 
 def save_metadata(save_path, model, conf, best_dice, best_cldice, best_val_loss, best_epoch):
     metadata = {

@@ -8,6 +8,7 @@ from tqdm import tqdm
 import sys
 import shutil
 from torch.utils.data import DataLoader
+import torch.cuda.amp
 
 # Add src to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -75,6 +76,8 @@ def predict_with_dataset(
     model = model.to(device)
     model.eval()
 
+    scaler = torch.cuda.amp.GradScaler(enabled=False)  # scaler not really needed in inference, but keeping style
+    
     for batch in dataloader:
         image_patches = batch['image_patches'].squeeze(0).to(device)
         coords = batch['coords']
@@ -84,7 +87,8 @@ def predict_with_dataset(
         preds = []
         with torch.no_grad():
             for i in range(0, image_patches.size(0), 8):
-                pred = model(image_patches[i:i+8])
+                with torch.cuda.amp.autocast(enabled=device.type=='cuda'):
+                    pred = model(image_patches[i:i+8])
                 preds.append(pred.cpu())
 
         preds = torch.cat(preds, dim=0)
@@ -99,7 +103,6 @@ def predict_with_dataset(
 
     shutil.rmtree(tmp_root)
     return pred_mask
-
 
 def main(args):
     # Load model metadata

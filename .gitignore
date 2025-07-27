@@ -8,7 +8,10 @@ enhance_images.ipynb
 saved_models
 enhance_images_clahe.ipynb
 checkpoints
-
+test_results
+temp_test_dataset
+confident_patches
+src/generate_pseudolabels2.py
 __pycache__/
 *.pyc
 *.pyo
