@@ -1,0 +1,22 @@
+2025-07-27 22:01:36 INFO Starting training with configuration: {'model': {'name': 'unet', 'alias': 'unet_densenet121', 'encoder_name': 'densenet121', 'encoder_weights': 'imagenet', 'in_channels': 1, 'classes': 1, 'activation': 'sigmoid', 'dropout': 0.2}, 'dataset': {'root': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers', 'patch_size': [512, 512], 'stride': [256, 256], 'num_patches': 40, 'dataset_csv': 'laticifer_dataset_index.csv', 'num_workers': 4, 'positive_ratio': 0.8, 'fg_threshold': 0.04, 'dist_transform': True, 'feature_dirs': {'enhanced': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/enhanced_images', 'mask': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/masks', 'distance': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/distance_maps_pt'}}, 'train': {'batch_size': 16, 'num_epochs': 70, 'learning_rate': 0.001, 'accumulation_steps': 1, 'save_dir': '/data/smadper@alumno.upv.es/TFM/checkpoints2/unet/20250727_220136_bce_dice_curr_learn', 'log_interval': 1, 'patience': 10, 'mixed_precision': True, 'curriculum_schedule': [[0, 3], [5, 2], [10, 1], [15, 0]], 'experiment_name': 'bce_dice_curr_learn', 'timestamp': '20250727_220136'}, 'test': {'batch_size': 1}, 'loss': {'name': 'bce', 'cldice_alpha': 0.3, 'use_topographic': False, 'combine_with': 'dice', 'weights': {'main': 0.5, 'combined': 0.5}, 'topo': {'alpha': 2.0, 'beta': 1.0}}}
+2025-07-27 22:01:36 INFO Experiment name: bce_dice_curr_learn
+2025-07-27 22:01:36 INFO Loading model unet with settings {'name': 'unet', 'alias': 'unet_densenet121', 'encoder_name': 'densenet121', 'encoder_weights': 'imagenet', 'in_channels': 1, 'classes': 1, 'activation': 'sigmoid', 'dropout': 0.2}
+Traceback (most recent call last):
+  File "/data/smadper@alumno.upv.es/TFM/src/train.py", line 228, in <module>
+    main(conf)
+  File "/data/smadper@alumno.upv.es/TFM/src/train.py", line 194, in main
+    train_loader, test_loader = get_patch_dataloaders(conf)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data/smadper@alumno.upv.es/TFM/src/datasets.py", line 442, in get_patch_dataloaders
+    train_loader = DataLoader(
+                   ^^^^^^^^^^^
+  File "/data/smadper@alumno.upv.es/miniconda3/envs/tfm/lib/python3.12/site-packages/torch/utils/data/dataloader.py", line 385, in __init__
+    sampler = RandomSampler(dataset, generator=generator)  # type: ignore[arg-type]
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data/smadper@alumno.upv.es/miniconda3/envs/tfm/lib/python3.12/site-packages/torch/utils/data/sampler.py", line 155, in __init__
+    if not isinstance(self.num_samples, int) or self.num_samples <= 0:
+                      ^^^^^^^^^^^^^^^^
+  File "/data/smadper@alumno.upv.es/miniconda3/envs/tfm/lib/python3.12/site-packages/torch/utils/data/sampler.py", line 164, in num_samples
+    return len(self.data_source)
+           ^^^^^^^^^^^^^^^^^^^^^
+TypeError: object of type 'LaticiferPatchTrain' has no len()

@@ -7,7 +7,7 @@ create_masks.ipynb
 enhance_images.ipynb
 saved_models
 enhance_images_clahe.ipynb
-checkpoints
+checkpoints*
 test_results
 temp_test_dataset
 confident_patches

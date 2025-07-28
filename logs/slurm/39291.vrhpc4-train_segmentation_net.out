@@ -1,0 +1,70 @@
+2025-07-27 23:16:03 INFO Starting training with configuration: {'model': {'name': 'unet', 'alias': 'unet_densenet121', 'encoder_name': 'densenet121', 'encoder_weights': 'imagenet', 'in_channels': 1, 'classes': 1, 'activation': 'sigmoid', 'dropout': 0.2}, 'dataset': {'root': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers', 'patch_size': [512, 512], 'stride': [256, 256], 'num_patches': 40, 'dataset_csv': 'laticifer_dataset_index.csv', 'num_workers': 4, 'positive_ratio': 0.8, 'fg_threshold': 0.04, 'dist_transform': True, 'feature_dirs': {'enhanced': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/enhanced_images', 'mask': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/masks', 'distance': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/distance_maps_pt'}}, 'train': {'batch_size': 16, 'num_epochs': 70, 'learning_rate': 0.001, 'accumulation_steps': 1, 'save_dir': '/data/smadper@alumno.upv.es/TFM/checkpoints2/unet/20250727_231603_bce_dice_curr_learn', 'log_interval': 1, 'patience': 10, 'mixed_precision': True, 'curriculum_schedule': [[0, 4], [5, 3], [10, 2], [15, 0]], 'experiment_name': 'bce_dice_curr_learn', 'timestamp': '20250727_231603'}, 'test': {'batch_size': 1}, 'loss': {'name': 'bce', 'cldice_alpha': 0.3, 'use_topographic': False, 'combine_with': 'dice', 'weights': {'main': 0.5, 'combined': 0.5}, 'topo': {'alpha': 2.0, 'beta': 1.0}}}
+2025-07-27 23:16:03 INFO Experiment name: bce_dice_curr_learn
+2025-07-27 23:16:03 INFO Loading model unet with settings {'name': 'unet', 'alias': 'unet_densenet121', 'encoder_name': 'densenet121', 'encoder_weights': 'imagenet', 'in_channels': 1, 'classes': 1, 'activation': 'sigmoid', 'dropout': 0.2}
+2025-07-27 23:16:04 INFO Epoch 1: Curriculum level set to 4
+2025-07-27 23:17:53 INFO Epoch 001 | Train Loss: 0.4325 | Val Loss: 0.4480 | Dice: 0.3862 | clDice: 0.4611 | IoU: 0.2403 | Tversky: 0.3862 | Hausdorff: 603.1984 | HD95: 227.5816 | LR: 0.001000
+2025-07-27 23:17:53 INFO Epoch 2: Curriculum level set to 4
+2025-07-27 23:19:42 INFO Epoch 002 | Train Loss: 0.3341 | Val Loss: 0.3780 | Dice: 0.4503 | clDice: 0.5302 | IoU: 0.2909 | Tversky: 0.4503 | Hausdorff: 259.1840 | HD95: 66.2268 | LR: 0.001000
+2025-07-27 23:19:42 INFO Epoch 3: Curriculum level set to 4
+2025-07-27 23:21:29 INFO Epoch 003 | Train Loss: 0.3187 | Val Loss: 0.3643 | Dice: 0.4692 | clDice: 0.5551 | IoU: 0.3066 | Tversky: 0.4692 | Hausdorff: 256.5722 | HD95: 48.4669 | LR: 0.001000
+2025-07-27 23:21:29 INFO Epoch 4: Curriculum level set to 4
+2025-07-27 23:23:17 INFO Epoch 004 | Train Loss: 0.3120 | Val Loss: 0.3747 | Dice: 0.4576 | clDice: 0.5567 | IoU: 0.2968 | Tversky: 0.4576 | Hausdorff: 261.5463 | HD95: 70.8648 | LR: 0.001000
+2025-07-27 23:23:17 INFO Epoch 5: Curriculum level set to 3
+2025-07-27 23:25:05 INFO Epoch 005 | Train Loss: 0.3193 | Val Loss: 0.3534 | Dice: 0.4784 | clDice: 0.5506 | IoU: 0.3146 | Tversky: 0.4784 | Hausdorff: 242.4543 | HD95: 39.6754 | LR: 0.001000
+2025-07-27 23:25:05 INFO Epoch 6: Curriculum level set to 3
+2025-07-27 23:26:56 INFO Epoch 006 | Train Loss: 0.3144 | Val Loss: 0.3895 | Dice: 0.4673 | clDice: 0.5819 | IoU: 0.3050 | Tversky: 0.4673 | Hausdorff: 241.5826 | HD95: 29.9981 | LR: 0.001000
+2025-07-27 23:26:56 INFO Epoch 7: Curriculum level set to 3
+2025-07-27 23:28:44 INFO Epoch 007 | Train Loss: 0.3189 | Val Loss: 0.3592 | Dice: 0.4782 | clDice: 0.5723 | IoU: 0.3145 | Tversky: 0.4782 | Hausdorff: 251.0040 | HD95: 39.4361 | LR: 0.001000
+2025-07-27 23:28:44 INFO Epoch 8: Curriculum level set to 3
+2025-07-27 23:30:34 INFO Epoch 008 | Train Loss: 0.3094 | Val Loss: 0.3565 | Dice: 0.4842 | clDice: 0.5648 | IoU: 0.3195 | Tversky: 0.4842 | Hausdorff: 495.2446 | HD95: 33.1946 | LR: 0.001000
+2025-07-27 23:30:34 INFO Epoch 9: Curriculum level set to 3
+2025-07-27 23:32:24 INFO Epoch 009 | Train Loss: 0.3124 | Val Loss: 0.3543 | Dice: 0.4848 | clDice: 0.5782 | IoU: 0.3201 | Tversky: 0.4848 | Hausdorff: 240.8277 | HD95: 31.4557 | LR: 0.001000
+2025-07-27 23:32:24 INFO Epoch 10: Curriculum level set to 2
+2025-07-27 23:34:14 INFO Epoch 010 | Train Loss: 0.3268 | Val Loss: 0.3555 | Dice: 0.4817 | clDice: 0.5587 | IoU: 0.3176 | Tversky: 0.4817 | Hausdorff: 249.0386 | HD95: 29.9448 | LR: 0.001000
+2025-07-27 23:34:14 INFO Epoch 11: Curriculum level set to 2
+2025-07-27 23:36:01 INFO Epoch 011 | Train Loss: 0.3260 | Val Loss: 0.3707 | Dice: 0.4678 | clDice: 0.5438 | IoU: 0.3056 | Tversky: 0.4678 | Hausdorff: 241.0070 | HD95: 43.2048 | LR: 0.000500
+2025-07-27 23:36:01 INFO Epoch 12: Curriculum level set to 2
+2025-07-27 23:37:49 INFO Epoch 012 | Train Loss: 0.3175 | Val Loss: 0.3414 | Dice: 0.4990 | clDice: 0.5807 | IoU: 0.3327 | Tversky: 0.4990 | Hausdorff: 242.0328 | HD95: 29.2351 | LR: 0.000500
+2025-07-27 23:37:49 INFO Epoch 13: Curriculum level set to 2
+2025-07-27 23:39:39 INFO Epoch 013 | Train Loss: 0.3158 | Val Loss: 0.3455 | Dice: 0.4949 | clDice: 0.5732 | IoU: 0.3291 | Tversky: 0.4949 | Hausdorff: 241.8964 | HD95: 26.1848 | LR: 0.000500
+2025-07-27 23:39:39 INFO Epoch 14: Curriculum level set to 2
+2025-07-27 23:41:28 INFO Epoch 014 | Train Loss: 0.3186 | Val Loss: 0.3409 | Dice: 0.4997 | clDice: 0.5753 | IoU: 0.3332 | Tversky: 0.4997 | Hausdorff: 251.6183 | HD95: 28.8265 | LR: 0.000500
+2025-07-27 23:41:28 INFO Epoch 15: Curriculum level set to 0
+2025-07-27 23:43:09 INFO Epoch 015 | Train Loss: 0.3692 | Val Loss: 0.3341 | Dice: 0.4973 | clDice: 0.5465 | IoU: 0.3314 | Tversky: 0.4973 | Hausdorff: 243.1976 | HD95: 27.8390 | LR: 0.000500
+2025-07-27 23:43:09 INFO Epoch 16: Curriculum level set to 0
+2025-07-27 23:44:56 INFO Epoch 016 | Train Loss: 0.3662 | Val Loss: 0.3375 | Dice: 0.4917 | clDice: 0.5375 | IoU: 0.3265 | Tversky: 0.4917 | Hausdorff: 243.4967 | HD95: 29.4343 | LR: 0.000500
+2025-07-27 23:44:56 INFO Epoch 17: Curriculum level set to 0
+2025-07-27 23:46:41 INFO Epoch 017 | Train Loss: 0.3662 | Val Loss: 0.3361 | Dice: 0.4962 | clDice: 0.5472 | IoU: 0.3303 | Tversky: 0.4962 | Hausdorff: 241.5240 | HD95: 26.7451 | LR: 0.000500
+2025-07-27 23:46:41 INFO Epoch 18: Curriculum level set to 0
+2025-07-27 23:48:18 INFO Epoch 018 | Train Loss: 0.3633 | Val Loss: 0.3345 | Dice: 0.4950 | clDice: 0.5417 | IoU: 0.3295 | Tversky: 0.4950 | Hausdorff: 241.5172 | HD95: 31.0742 | LR: 0.000500
+2025-07-27 23:48:18 INFO Epoch 19: Curriculum level set to 0
+2025-07-27 23:50:02 INFO Epoch 019 | Train Loss: 0.3647 | Val Loss: 0.3371 | Dice: 0.4876 | clDice: 0.5323 | IoU: 0.3229 | Tversky: 0.4876 | Hausdorff: 243.2483 | HD95: 33.0464 | LR: 0.000500
+2025-07-27 23:50:02 INFO Epoch 20: Curriculum level set to 0
+2025-07-27 23:51:46 INFO Epoch 020 | Train Loss: 0.3635 | Val Loss: 0.3385 | Dice: 0.4907 | clDice: 0.5433 | IoU: 0.3256 | Tversky: 0.4907 | Hausdorff: 247.9899 | HD95: 32.9524 | LR: 0.000500
+2025-07-27 23:51:46 INFO Epoch 21: Curriculum level set to 0
+2025-07-27 23:53:32 INFO Epoch 021 | Train Loss: 0.3618 | Val Loss: 0.3342 | Dice: 0.4953 | clDice: 0.5372 | IoU: 0.3296 | Tversky: 0.4953 | Hausdorff: 243.3168 | HD95: 26.4667 | LR: 0.000250
+2025-07-27 23:53:32 INFO Epoch 22: Curriculum level set to 0
+2025-07-27 23:55:10 INFO Epoch 022 | Train Loss: 0.3587 | Val Loss: 0.3339 | Dice: 0.4928 | clDice: 0.5362 | IoU: 0.3275 | Tversky: 0.4928 | Hausdorff: 243.3584 | HD95: 27.3765 | LR: 0.000250
+2025-07-27 23:55:10 INFO Epoch 23: Curriculum level set to 0
+2025-07-27 23:56:54 INFO Epoch 023 | Train Loss: 0.3589 | Val Loss: 0.3317 | Dice: 0.4989 | clDice: 0.5476 | IoU: 0.3328 | Tversky: 0.4989 | Hausdorff: 243.2748 | HD95: 25.4666 | LR: 0.000250
+2025-07-27 23:56:54 INFO Epoch 24: Curriculum level set to 0
+2025-07-27 23:58:38 INFO Epoch 024 | Train Loss: 0.3580 | Val Loss: 0.3328 | Dice: 0.4977 | clDice: 0.5427 | IoU: 0.3317 | Tversky: 0.4977 | Hausdorff: 241.7463 | HD95: 27.8878 | LR: 0.000250
+2025-07-27 23:58:38 INFO Epoch 25: Curriculum level set to 0
+2025-07-28 00:00:23 INFO Epoch 025 | Train Loss: 0.3575 | Val Loss: 0.3366 | Dice: 0.4908 | clDice: 0.5360 | IoU: 0.3255 | Tversky: 0.4908 | Hausdorff: 243.5562 | HD95: 27.2244 | LR: 0.000250
+2025-07-28 00:00:23 INFO Epoch 26: Curriculum level set to 0
+2025-07-28 00:02:08 INFO Epoch 026 | Train Loss: 0.3582 | Val Loss: 0.3323 | Dice: 0.5008 | clDice: 0.5469 | IoU: 0.3344 | Tversky: 0.5008 | Hausdorff: 242.5686 | HD95: 24.8956 | LR: 0.000250
+2025-07-28 00:02:08 INFO Epoch 27: Curriculum level set to 0
+2025-07-28 00:03:52 INFO Epoch 027 | Train Loss: 0.3583 | Val Loss: 0.3326 | Dice: 0.4973 | clDice: 0.5427 | IoU: 0.3313 | Tversky: 0.4973 | Hausdorff: 243.6484 | HD95: 28.2354 | LR: 0.000250
+2025-07-28 00:03:52 INFO Epoch 28: Curriculum level set to 0
+2025-07-28 00:05:38 INFO Epoch 028 | Train Loss: 0.3580 | Val Loss: 0.3329 | Dice: 0.4982 | clDice: 0.5432 | IoU: 0.3322 | Tversky: 0.4982 | Hausdorff: 243.2054 | HD95: 26.8280 | LR: 0.000250
+2025-07-28 00:05:38 INFO Epoch 29: Curriculum level set to 0
+2025-07-28 00:07:15 INFO Epoch 029 | Train Loss: 0.3558 | Val Loss: 0.3358 | Dice: 0.4911 | clDice: 0.5377 | IoU: 0.3258 | Tversky: 0.4911 | Hausdorff: 242.9684 | HD95: 28.0925 | LR: 0.000125
+2025-07-28 00:07:15 INFO Epoch 30: Curriculum level set to 0
+2025-07-28 00:09:00 INFO Epoch 030 | Train Loss: 0.3528 | Val Loss: 0.3323 | Dice: 0.4992 | clDice: 0.5478 | IoU: 0.3331 | Tversky: 0.4992 | Hausdorff: 239.3392 | HD95: 24.5914 | LR: 0.000125
+2025-07-28 00:09:00 INFO Epoch 31: Curriculum level set to 0
+2025-07-28 00:10:43 INFO Epoch 031 | Train Loss: 0.3531 | Val Loss: 0.3348 | Dice: 0.4949 | clDice: 0.5412 | IoU: 0.3293 | Tversky: 0.4949 | Hausdorff: 229.8417 | HD95: 26.7965 | LR: 0.000125
+2025-07-28 00:10:43 INFO Epoch 32: Curriculum level set to 0
+2025-07-28 00:12:26 INFO Epoch 032 | Train Loss: 0.3529 | Val Loss: 0.3339 | Dice: 0.4940 | clDice: 0.5419 | IoU: 0.3284 | Tversky: 0.4940 | Hausdorff: 230.1462 | HD95: 28.5437 | LR: 0.000125
+2025-07-28 00:12:26 INFO Epoch 33: Curriculum level set to 0
+2025-07-28 00:14:12 INFO Early stopping at epoch 33 | Best Dice: 0.5008 at epoch 23
+2025-07-28 00:14:43 INFO Test Loss: 0.3317 | Dice: 0.4989 | clDice: 0.5476 | IoU: 0.3328 | Tversky: 0.4989 | Hausdorff: 243.2748 | HD95: 25.4666

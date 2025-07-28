@@ -27,7 +27,6 @@ def parse_args():
 
 def test_model(model, test_loader, conf, save_dir=None, return_metrics_only=False):
     model.eval()
-    dice_scores, iou_scores, cldice_scores = [], [], []
     val_loss = 0.0
     patch_size = conf['dataset']['patch_size']
     batch_size = conf['test']['batch_size']
@@ -51,7 +50,10 @@ def test_model(model, test_loader, conf, save_dir=None, return_metrics_only=Fals
             preds = []
             for i in range(0, image_patches.size(0), batch_size):
                 patch_batch = image_patches[i:i + batch_size]
-                preds.append(model(patch_batch))
+                batch_preds = model(patch_batch)
+                if isinstance(batch_preds, tuple):
+                    batch_preds = batch_preds[0] 
+                preds.append(batch_preds)
             preds = torch.cat(preds, dim=0)
             if use_topo:
                 distance_patches = batch['dist_patches'].cuda()
@@ -101,11 +103,10 @@ def test_model(model, test_loader, conf, save_dir=None, return_metrics_only=Fals
     return val_loss / len(test_loader), avg_metrics
 
 
-
 def train_model(model, train_loader, test_loader, conf):
     model = model.cuda()
     optimizer = torch.optim.AdamW(model.parameters(), lr=conf['train']['learning_rate'])
-    scheduler = ReduceLROnPlateau(optimizer, mode='min', patience=10, factor=0.5, min_lr=1e-6)
+    scheduler = ReduceLROnPlateau(optimizer, mode='min', patience=5, factor=0.5, min_lr=1e-6)
     best_dice, best_cldice, best_val_loss = 0.0, 0.0, float('inf')
     best_epoch, counter = 0, 0
     best_model_path = None
@@ -114,7 +115,18 @@ def train_model(model, train_loader, test_loader, conf):
     loss_fn = get_loss_function(conf)
     save_dir = conf['train']['save_dir']
 
+    curriculum_schedule = conf['train'].get('curriculum_schedule', [])  # NEW
+
     for epoch in range(1, conf['train']['num_epochs'] + 1):
+        # Apply Curriculum Learning Level
+        curriculum_level = 0
+        for ep_threshold, level in curriculum_schedule:
+            if epoch >= ep_threshold:
+                curriculum_level = level
+                #logging.info(f"Epoch {epoch}: Curriculum level set to {curriculum_level}")
+        if hasattr(train_loader.dataset, 'curriculum_level'):
+            train_loader.dataset.curriculum_level = curriculum_level
+
         model.train()
         train_loss = 0.0
         optimizer.zero_grad()
@@ -122,11 +134,14 @@ def train_model(model, train_loader, test_loader, conf):
         for batch_idx, batch in enumerate(train_loader):
             images = batch['inputs'].cuda()
             masks = batch['masks'].cuda()
+            preds = model(images)
+            if isinstance(preds, tuple):
+                preds = preds[0]
             if use_topo:
                 distances = batch['dist_maps'].cuda()
-                loss = loss_fn(model(images), masks, distances) / accumulation_steps
+                loss = loss_fn(preds, masks, distances) / accumulation_steps
             else:
-                loss = loss_fn(model(images), masks) / accumulation_steps
+                loss = loss_fn(preds, masks) / accumulation_steps
 
             loss.backward()
             if (batch_idx + 1) % accumulation_steps == 0 or (batch_idx + 1) == len(train_loader):
@@ -149,14 +164,9 @@ def train_model(model, train_loader, test_loader, conf):
             best_val_loss = avg_val_loss
             best_epoch = epoch
             counter = 0
-            #if best_model_path and os.path.exists(best_model_path):
-            #    os.remove((best_model_path))
             os.makedirs(save_dir, exist_ok=True)
-            save_name = f"best_model.pth"
-            best_model_path = os.path.join(save_dir, save_name)
-            #torch.save(model.state_dict(), os.path.join(save_dir, "best_model_state_dict.pth"))
-            model.save_pretrained(model, os.path.join(save_dir, "best_model.pth"))
-            
+            best_model_path = os.path.join(save_dir, "best_model.pth")
+            torch.save(model, best_model_path)
         else:
             counter += 1
             if counter >= conf['train']['patience']:
@@ -171,9 +181,9 @@ def train_model(model, train_loader, test_loader, conf):
                 f" | LR: {optimizer.param_groups[0]['lr']:.6f}"
             )
 
-
     logging.info("Training completed.")
     return best_model_path, best_dice, best_cldice, best_val_loss, best_epoch
+
 
 def main(conf):
     model = build_model(conf)
@@ -181,7 +191,7 @@ def main(conf):
     best_model_path, best_dice, best_cldice, best_val_loss, best_epoch = train_model(model, train_loader, test_loader, conf)
     save_metadata(os.path.dirname(best_model_path), model, conf, best_dice, best_cldice, best_val_loss, best_epoch)
     #model.load_state_dict(torch.load(best_model_path))
-    model = smp.from_pretrained(best_model_path, weights_only=False)
+    model = torch.load(best_model_path, weights_only=False)
     save_dir = os.path.dirname(best_model_path)
     avg_val_loss, test_metrics = test_model(model, test_loader, conf, save_dir)
     logging.info(f"Test Loss: {avg_val_loss:.4f} | " + 

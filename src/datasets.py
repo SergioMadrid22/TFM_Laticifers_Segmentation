@@ -6,8 +6,6 @@ import os
 from PIL import Image
 from sklearn.model_selection import train_test_split
 import pandas as pd
-import random
-from torchvision import transforms
 import torch
 import cv2
 
@@ -51,161 +49,6 @@ class LaticiferDataset(Dataset):
         augmented = self.transforms(image=image, mask=mask)
         return augmented['image'], augmented['mask'].unsqueeze(0).float()
 
-'''
-class LaticiferPatchTrain(Dataset):
-    def __init__(
-        self, filenames, root_dir, patch_size=(512, 512), num_patches=20,
-        augment=True, dist_transform=False, use_clahe=False, num_channels=3
-    ):
-        self.filenames = filenames
-        self.root = root_dir
-        self.patch_size = patch_size
-        self.num_patches = num_patches
-        self.augment = augment
-        self.dist_transform = dist_transform
-        self.use_clahe = use_clahe
-        self.num_channels = num_channels
-
-        normalize = A.Normalize(
-            mean=(0.485, 0.456, 0.406) if num_channels == 3 else (0.5,),
-            std=(0.229, 0.224, 0.225) if num_channels == 3 else (0.5,)
-        )
-
-        self.transforms = A.Compose([
-            A.RandomCrop(*patch_size),
-            A.HorizontalFlip(p=0.5),
-            A.RandomBrightnessContrast(p=0.3),
-            A.ElasticTransform(p=0.3),
-            A.GaussianBlur(p=0.2),
-            normalize,
-            ToTensorV2()
-        ], additional_targets={'distance': 'mask'} if self.dist_transform else None)
-
-        self.samples = []
-        for i in range(len(self.filenames)):
-            self.samples.extend([i] * num_patches)
-
-    def __len__(self):
-        return len(self.samples)
-
-    def __getitem__(self, idx):
-        file_idx = self.samples[idx]
-        fname = self.filenames[file_idx]
-
-        img_path = os.path.join(self.root, "enhanced_images", fname)
-        mask_path = os.path.join(self.root, "masks", fname)
-        dist_path = os.path.join(self.root, "distance_maps_pt", fname.replace(".tif", ".pt"))
-
-        image = np.array(Image.open(img_path).convert("L"))
-        if self.use_clahe:
-            image = apply_clahe(image)
-
-        if self.num_channels == 3:
-            image = np.stack([image] * 3, axis=-1)  # Convert to RGB shape [H, W, 3]
-
-        mask = np.array(Image.open(mask_path).convert("L")) // 255
-
-        if self.dist_transform:
-            distance = torch.load(dist_path, weights_only=True).squeeze(0).numpy()
-            augmented = self.transforms(image=image, mask=mask, distance=distance)
-        else:
-            augmented = self.transforms(image=image, mask=mask)
-
-        image_tensor = augmented['image']
-        mask_tensor = augmented['mask'].unsqueeze(0).float()
-
-        if self.dist_transform:
-            distance_tensor = augmented['distance'].unsqueeze(0).float()
-            return image_tensor, mask_tensor, distance_tensor
-
-        return image_tensor, mask_tensor
-'''
-'''
-class LaticiferPatchTest(Dataset):
-    def __init__(
-        self, filenames, root_dir, patch_size=(512, 512), stride=(256, 256),
-        dist_transform=False, use_clahe=True, num_channels=3
-    ):
-        self.filenames = filenames
-        self.root_dir = root_dir
-        self.patch_size = patch_size
-        self.stride = stride
-        self.dist_transform = dist_transform
-        self.use_clahe = use_clahe
-        self.num_channels = num_channels
-
-        normalize = A.Normalize(
-            mean=(0.485, 0.456, 0.406) if num_channels == 3 else (0.5,),
-            std=(0.229, 0.224, 0.225) if num_channels == 3 else (0.5,)
-        )
-
-        self.transforms = A.Compose([
-            normalize,
-            ToTensorV2()
-        ], additional_targets={'distance': 'mask'} if self.dist_transform else None)
-
-    def __len__(self):
-        return len(self.filenames)
-
-    def __getitem__(self, idx):
-        fname = self.filenames[idx]
-        img_path = os.path.join(self.root_dir, "enhanced_images", fname)
-        mask_path = os.path.join(self.root_dir, "masks", fname)
-        dist_path = os.path.join(self.root_dir, "distance_maps_pt", fname.replace(".tif", ".pt"))
-
-        image = np.array(Image.open(img_path).convert("L"))
-        if self.use_clahe:
-            image = apply_clahe(image)
-
-        if self.num_channels == 3:
-            image = np.stack([image] * 3, axis=-1)
-
-        mask = np.array(Image.open(mask_path).convert("L")) // 255
-        if self.dist_transform:
-            distance = torch.load(dist_path, weights_only=True).squeeze(0).numpy()
-
-        original_size = image.shape[:2]
-        pad_h = (self.patch_size[0] - original_size[0] % self.patch_size[0]) % self.patch_size[0]
-        pad_w = (self.patch_size[1] - original_size[1] % self.patch_size[1]) % self.patch_size[1]
-
-        image = np.pad(image, ((0, pad_h), (0, pad_w), (0, 0)) if self.num_channels == 3 else ((0, pad_h), (0, pad_w)), mode='constant')
-        mask = np.pad(mask, ((0, pad_h), (0, pad_w)), mode='constant')
-        if self.dist_transform:
-            distance = np.pad(distance, ((0, pad_h), (0, pad_w)), mode='constant')
-
-        H, W = image.shape[:2]
-        patches, mask_patches, dist_patches, coords = [], [], [], []
-
-        for top in range(0, H - self.patch_size[0] + 1, self.stride[0]):
-            for left in range(0, W - self.patch_size[1] + 1, self.stride[1]):
-                img_patch = image[top:top+self.patch_size[0], left:left+self.patch_size[1]]  # [H, W, C] or [H, W]
-                mask_patch = mask[top:top+self.patch_size[0], left:left+self.patch_size[1]]
-                if self.dist_transform:
-                    dist_patch = distance[top:top+self.patch_size[0], left:left+self.patch_size[1]]
-                    transformed = self.transforms(image=img_patch, mask=mask_patch, distance=dist_patch)
-                else:
-                    transformed = self.transforms(image=img_patch, mask=mask_patch)
-
-                patches.append(transformed['image'])
-                mask_patches.append(transformed['mask'].unsqueeze(0).float())
-                if self.dist_transform:
-                    dist_patches.append(transformed['distance'].unsqueeze(0).float())
-                coords.append((top, left))
-
-        result = {
-            'image_patches': torch.stack(patches),
-            'mask_patches': torch.stack(mask_patches),
-            'coords': coords,
-            'image_size': (H, W),
-            'original_size': original_size,
-            'image_idx': idx,
-            'filename': fname
-        }
-        if self.dist_transform:
-            result['dist_patches'] = torch.stack(dist_patches)
-
-        return result
-'''
 
 class LaticiferPatchTrain(Dataset):
     def __init__(
@@ -215,8 +58,9 @@ class LaticiferPatchTrain(Dataset):
         patches_per_image=20,
         positive_ratio=0.8,
         dist_transform=False,
-        fg_threshold=0.03,  # Fraction of patch area required to be vessel
-        filenames=None
+        fg_threshold=0.03,
+        filenames=None,
+        curriculum_level=0
     ):
         self.feature_dirs = feature_dirs
         self.patch_size = patch_size
@@ -224,6 +68,8 @@ class LaticiferPatchTrain(Dataset):
         self.positive_ratio = positive_ratio
         self.dist_transform = dist_transform
         self.fg_threshold = fg_threshold
+        self.curriculum_level = curriculum_level  # NEW
+
         self.filenames = filenames if filenames is not None else sorted(os.listdir(self.feature_dirs['mask']))
 
         additional_targets = {
@@ -237,11 +83,8 @@ class LaticiferPatchTrain(Dataset):
                 A.HorizontalFlip(p=0.5),
                 A.VerticalFlip(p=0.5),
                 A.RandomRotate90(p=0.5),
-                A.ElasticTransform(alpha=150, sigma=5, p=0.3, border_mode=cv2.BORDER_REFLECT_101),  # Removed alpha_affine
+                A.ElasticTransform(alpha=150, sigma=5, p=0.3, border_mode=cv2.BORDER_REFLECT_101),
                 A.GridDistortion(p=0.2, border_mode=cv2.BORDER_REFLECT_101),
-                A.RandomBrightnessContrast(p=0.3),
-                A.GaussNoise(std_range=(0.02, 0.1), mean_range=(0.0, 0.0), p=0.2),
-                A.GaussianBlur(blur_limit=(3, 5), p=0.2),
                 A.Normalize(mean=(0.5,) * len(feature_dirs), std=(0.5,) * len(feature_dirs)),
                 ToTensorV2()
             ],
@@ -262,11 +105,9 @@ class LaticiferPatchTrain(Dataset):
             return torch.load(path, weights_only=True).squeeze(0).numpy()
         else:
             path = os.path.join(dir_path, fname)
-            img = np.array(Image.open(path).convert("L")).astype(np.float32) #/ 255.0
-            #if key == 'sato':
-            #    img = (img - img.min()) / (img.max() - img.min() + 1e-5) * 255.0
+            img = np.array(Image.open(path).convert("L")).astype(np.float32)
             return img
-        
+
     def _random_patch_coords(self, H, W):
         ph, pw = self.patch_size
         top = np.random.randint(0, H - ph + 1)
@@ -274,25 +115,32 @@ class LaticiferPatchTrain(Dataset):
         return top, left
 
     def _find_positive_patch(self, mask):
-        """Find a patch where the vessel area exceeds the threshold."""
         max_tries = 50
         H, W = mask.shape
         ph, pw = self.patch_size
-
         for _ in range(max_tries):
             top, left = self._random_patch_coords(H, W)
             patch = mask[top:top + ph, left:left + pw]
-            #print(f"patch proportion: {patch.sum() / patch.size}")
             if patch.sum() / patch.size >= self.fg_threshold:
                 return top, left
         print("FAILED!")
-        return self._random_patch_coords(H, W)  # fallback if none found
+        return self._random_patch_coords(H, W)
+
+    def _apply_curriculum(self, mask):
+        """Applies morphological dilation to the mask based on curriculum level."""
+        if self.curriculum_level <= 0:
+            return mask
+        kernel = np.ones((3, 3), np.uint8)
+        mask_dilated = cv2.dilate(mask.astype(np.uint8), kernel, iterations=self.curriculum_level)
+        return mask_dilated.clip(0, 1)
 
     def __getitem__(self, idx):
         file_idx = self.samples[idx]
         fname = self.filenames[file_idx]
 
         mask = self._load_feature(self.feature_dirs['mask'], fname, key='mask') // 255
+        mask = self._apply_curriculum(mask)  # NEW: Apply curriculum learning
+
         H, W = mask.shape
 
         choose_positive = np.random.rand() < self.positive_ratio

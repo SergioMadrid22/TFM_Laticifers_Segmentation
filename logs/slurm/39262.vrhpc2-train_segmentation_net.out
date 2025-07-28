@@ -1,0 +1,43 @@
+/data/smadper@alumno.upv.es/TFM/env/lib/python3.8/site-packages/albumentations/__init__.py:13: UserWarning: A new version of Albumentations is available: 2.0.8 (you have 1.4.18). Upgrade using: pip install -U albumentations. To disable automatic update checks, set the environment variable NO_ALBUMENTATIONS_UPDATE to 1.
+  check_for_updates()
+2025-07-27 17:46:18 INFO Starting training with configuration: {'model': {'name': 'unet', 'alias': 'unet_densenet121', 'encoder_name': 'densenet121', 'encoder_weights': 'imagenet', 'in_channels': 2, 'classes': 1, 'activation': 'sigmoid', 'dropout': 0.2}, 'dataset': {'root': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers', 'patch_size': [512, 512], 'stride': [256, 256], 'num_patches': 40, 'dataset_csv': 'laticifer_dataset_index.csv', 'num_workers': 4, 'positive_ratio': 0.8, 'fg_threshold': 0.04, 'dist_transform': True, 'feature_dirs': {'enhanced': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/enhanced_images', 'mask': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/masks', 'distance': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/distance_maps_pt'}}, 'train': {'batch_size': 16, 'num_epochs': 70, 'learning_rate': 0.001, 'accumulation_steps': 1, 'save_dir': '/data/smadper@alumno.upv.es/TFM/checkpoints2/unet/20250727_174618_bce_dice_40patches', 'log_interval': 1, 'patience': 10, 'mixed_precision': True, 'experiment_name': 'bce_dice_40patches', 'timestamp': '20250727_174618'}, 'test': {'batch_size': 1}, 'loss': {'name': 'bce', 'cldice_alpha': 0.3, 'use_topographic': False, 'combine_with': 'dice', 'weights': {'main': 0.5, 'combined': 0.5}, 'topo': {'alpha': 2.0, 'beta': 1.0}}}
+2025-07-27 17:46:18 INFO Experiment name: bce_dice_40patches
+2025-07-27 17:46:18 INFO Loading model unet with settings {'name': 'unet', 'alias': 'unet_densenet121', 'encoder_name': 'densenet121', 'encoder_weights': 'imagenet', 'in_channels': 2, 'classes': 1, 'activation': 'sigmoid', 'dropout': 0.2}
+/data/smadper@alumno.upv.es/TFM/src/datasets.py:243: UserWarning: Argument 'std_range' is not valid and will be ignored.
+  A.GaussNoise(std_range=(0.02, 0.1), mean_range=(0.0, 0.0), p=0.2),
+/data/smadper@alumno.upv.es/TFM/src/datasets.py:243: UserWarning: Argument 'mean_range' is not valid and will be ignored.
+  A.GaussNoise(std_range=(0.02, 0.1), mean_range=(0.0, 0.0), p=0.2),
+Traceback (most recent call last):
+  File "src/train.py", line 214, in <module>
+    main(conf)
+  File "src/train.py", line 181, in main
+    best_model_path, best_dice, best_cldice, best_val_loss, best_epoch = train_model(model, train_loader, test_loader, conf)
+  File "src/train.py", line 129, in train_model
+    loss = loss_fn(model(images), masks) / accumulation_steps
+  File "/data/smadper@alumno.upv.es/TFM/env/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/data/smadper@alumno.upv.es/TFM/env/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/data/smadper@alumno.upv.es/TFM/env/lib/python3.8/site-packages/segmentation_models_pytorch/base/model.py", line 29, in forward
+    features = self.encoder(x)
+  File "/data/smadper@alumno.upv.es/TFM/env/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/data/smadper@alumno.upv.es/TFM/env/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/data/smadper@alumno.upv.es/TFM/env/lib/python3.8/site-packages/segmentation_models_pytorch/encoders/densenet.py", line 79, in forward
+    x = stages[i](x)
+  File "/data/smadper@alumno.upv.es/TFM/env/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/data/smadper@alumno.upv.es/TFM/env/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/data/smadper@alumno.upv.es/TFM/env/lib/python3.8/site-packages/torch/nn/modules/container.py", line 219, in forward
+    input = module(input)
+  File "/data/smadper@alumno.upv.es/TFM/env/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/data/smadper@alumno.upv.es/TFM/env/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/data/smadper@alumno.upv.es/TFM/env/lib/python3.8/site-packages/torch/nn/modules/conv.py", line 458, in forward
+    return self._conv_forward(input, self.weight, self.bias)
+  File "/data/smadper@alumno.upv.es/TFM/env/lib/python3.8/site-packages/torch/nn/modules/conv.py", line 454, in _conv_forward
+    return F.conv2d(input, weight, bias, self.stride,
+RuntimeError: Given groups=1, weight of size [64, 2, 7, 7], expected input[16, 1, 512, 512] to have 2 channels, but got 1 channels instead

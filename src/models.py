@@ -2,9 +2,6 @@ import segmentation_models_pytorch as smp
 import torch
 import logging
 import torch.nn as nn
-import torchvision.models as models
-import torch.nn.functional as F
-from einops import rearrange
 
 logger = logging.getLogger(__name__)
 
@@ -141,38 +138,20 @@ supported_encoders = [
 
 def build_model(conf):
     model_name = conf['model']['name'].lower().strip()
+    feature_dirs = conf['dataset']['feature_dirs']
+    in_channels = len(feature_dirs)
+    if 'mask' in feature_dirs:
+        in_channels -= 1
+    if 'distance' in feature_dirs:
+        in_channels -= 1
 
     # Custom U-Net with pretrained encoder
     if model_name == 'ownunet':
         logging.info("Loading custom OwnUNet model.")
-
-        # If pretrained_encoder_path is specified in config
-        pretrained_path = conf['model'].get('pretrained_encoder_path', None)
-
-        if pretrained_path and pretrained_path.lower() != 'none':
-            logging.info(f"Loading pretrained encoder weights from {pretrained_path}")
-            encoder = Encoder(
-                in_channels=conf['model'].get('in_channels', 1),
-                base_channels=64
-            )
-            encoder.load_state_dict(torch.load(pretrained_path, map_location='cpu'))
-
-            model = UNetWithPretrainedEncoder(
-                pretrained_encoder=encoder,
-                out_channels=conf['model'].get('classes', 1)
-            )
-        else:
-            # No pretrained encoder, build from scratch
-            logging.info("No pretrained encoder specified. Initializing randomly.")
-            encoder = Encoder(
-                in_channels=conf['model'].get('in_channels', 1),
-                base_channels=64
-            )
-            model = UNetWithPretrainedEncoder(
-                pretrained_encoder=encoder,
-                out_channels=conf['model'].get('classes', 1)
-            )
-        return model
+        model = OwnUNet(
+            in_channels=in_channels,
+            out_channels=conf['model']['classes']
+        )
 
     # For standard SMP models
     if model_name not in supported_models:
@@ -183,17 +162,17 @@ def build_model(conf):
     else:
         logging.info(f"Loading model {model_name} with settings {conf['model']}")
 
-    model_class = supported_models[model_name]
-    
-    model = model_class(
-        encoder_name=conf['model']['encoder_name'],
-        encoder_weights=conf['model']['encoder_weights'],
-        in_channels=conf['model']['in_channels'],
-        classes=conf['model']['classes'],
-        activation=conf['model'].get('activation', None),
-        #dropout=conf['model'].get('dropout', None)
-    )
-    return model
+        model_class = supported_models[model_name]
+        aux_params = dict(dropout=conf['model'].get('dropout', None), classes=conf['model']['classes'])
+        model = model_class(
+            encoder_name=conf['model']['encoder_name'],
+            encoder_weights=conf['model']['encoder_weights'],
+            in_channels=in_channels,
+            classes=conf['model']['classes'],
+            activation=conf['model'].get('activation', None),
+            aux_params=aux_params
+        )
+        return model
 
 
 # My custom U-Net
@@ -246,9 +225,6 @@ class OwnUNet(nn.Module):
 
         return torch.sigmoid(self.final(d1))
     
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
 
 # --- Modified Encoder to return intermediate features ---
 class Encoder(nn.Module):

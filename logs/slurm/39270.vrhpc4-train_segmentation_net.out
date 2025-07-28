@@ -1,0 +1,31 @@
+/data/smadper@alumno.upv.es/TFM/env/lib/python3.8/site-packages/albumentations/__init__.py:13: UserWarning: A new version of Albumentations is available: 2.0.8 (you have 1.4.18). Upgrade using: pip install -U albumentations. To disable automatic update checks, set the environment variable NO_ALBUMENTATIONS_UPDATE to 1.
+  check_for_updates()
+2025-07-27 18:25:07 INFO Starting training with configuration: {'model': {'name': 'unet++', 'alias': 'unet_densenet121', 'encoder_name': 'densenet121', 'encoder_weights': 'imagenet', 'in_channels': 1, 'classes': 1, 'activation': 'sigmoid', 'dropout': 0.2}, 'dataset': {'root': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers', 'patch_size': [512, 512], 'stride': [256, 256], 'num_patches': 20, 'dataset_csv': 'laticifer_dataset_index.csv', 'num_workers': 4, 'positive_ratio': 0.8, 'fg_threshold': 0.04, 'dist_transform': True, 'feature_dirs': {'enhanced': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/enhanced_images', 'mask': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/masks', 'distance': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/distance_maps_pt'}}, 'train': {'batch_size': 16, 'num_epochs': 70, 'learning_rate': 0.001, 'accumulation_steps': 1, 'save_dir': '/data/smadper@alumno.upv.es/TFM/checkpoints2/unet++/20250727_182507_bce_dice_20patches', 'log_interval': 1, 'patience': 10, 'mixed_precision': True, 'experiment_name': 'bce_dice_20patches', 'timestamp': '20250727_182507'}, 'test': {'batch_size': 1}, 'loss': {'name': 'bce', 'cldice_alpha': 0.3, 'use_topographic': False, 'combine_with': 'dice', 'weights': {'main': 0.5, 'combined': 0.5}, 'topo': {'alpha': 2.0, 'beta': 1.0}}}
+2025-07-27 18:25:07 INFO Experiment name: bce_dice_20patches
+2025-07-27 18:25:07 INFO Loading model unet++ with settings {'name': 'unet++', 'alias': 'unet_densenet121', 'encoder_name': 'densenet121', 'encoder_weights': 'imagenet', 'in_channels': 1, 'classes': 1, 'activation': 'sigmoid', 'dropout': 0.2}
+Traceback (most recent call last):
+  File "src/train.py", line 214, in <module>
+    main(conf)
+  File "src/train.py", line 181, in main
+    best_model_path, best_dice, best_cldice, best_val_loss, best_epoch = train_model(model, train_loader, test_loader, conf)
+  File "src/train.py", line 129, in train_model
+    loss = loss_fn(model(images), masks) / accumulation_steps
+  File "/data/smadper@alumno.upv.es/TFM/env/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/data/smadper@alumno.upv.es/TFM/env/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/data/smadper@alumno.upv.es/TFM/env/lib/python3.8/site-packages/segmentation_models_pytorch/base/model.py", line 30, in forward
+    decoder_output = self.decoder(*features)
+  File "/data/smadper@alumno.upv.es/TFM/env/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/data/smadper@alumno.upv.es/TFM/env/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/data/smadper@alumno.upv.es/TFM/env/lib/python3.8/site-packages/segmentation_models_pytorch/decoders/unetplusplus/decoder.py", line 135, in forward
+    dense_x[f"x_{depth_idx}_{dense_l_i}"] = self.blocks[f"x_{depth_idx}_{dense_l_i}"](
+  File "/data/smadper@alumno.upv.es/TFM/env/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1553, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/data/smadper@alumno.upv.es/TFM/env/lib/python3.8/site-packages/torch/nn/modules/module.py", line 1562, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/data/smadper@alumno.upv.es/TFM/env/lib/python3.8/site-packages/segmentation_models_pytorch/decoders/unetplusplus/decoder.py", line 38, in forward
+    x = torch.cat([x, skip], dim=1)
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 896.00 MiB. GPU 0 has a total capacity of 23.50 GiB of which 892.44 MiB is free. Including non-PyTorch memory, this process has 22.62 GiB memory in use. Of the allocated memory 21.13 GiB is allocated by PyTorch, and 1.22 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
