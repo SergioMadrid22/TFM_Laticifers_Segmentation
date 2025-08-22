@@ -89,7 +89,7 @@ def find_best_threshold(pred_logits, gt_mask_np, num_thresholds=100):
 @st.cache_resource
 def predict_with_dataset(model, pil_image, patch_size=(512, 512), stride=(256, 256), use_clahe=True):
     tmp_root = "temp_test_dataset"
-    os.makedirs(os.path.join(tmp_root, "enhanced"), exist_ok=True)
+    os.makedirs(os.path.join(tmp_root, "image"), exist_ok=True)
     os.makedirs(os.path.join(tmp_root, "mask"), exist_ok=True)  # Dummy ground truth
 
     fname = "uploaded_image.png"
@@ -97,7 +97,7 @@ def predict_with_dataset(model, pil_image, patch_size=(512, 512), stride=(256, 2
 
     # Optionally apply CLAHE
     enhanced_img = apply_clahe(image_np) if use_clahe else image_np
-    Image.fromarray(enhanced_img).save(os.path.join(tmp_root, "enhanced", fname))
+    Image.fromarray(enhanced_img).save(os.path.join(tmp_root, "image", fname))
 
     # Create dummy mask
     dummy_mask = Image.fromarray(np.zeros_like(image_np, dtype=np.uint8))
@@ -105,7 +105,7 @@ def predict_with_dataset(model, pil_image, patch_size=(512, 512), stride=(256, 2
 
     # Build feature_dirs for dataset
     feature_dirs = {
-        'enhanced': os.path.join(tmp_root, "enhanced"),
+        'image': os.path.join(tmp_root, "image"),
         'mask': os.path.join(tmp_root, "mask"),
     }
 

@@ -1,0 +1,48 @@
+2025-07-28 19:13:39,839 [INFO] Running test evaluation with TTA = True
+2025-07-28 19:13:39,839 [INFO] Evaluating with postprocessing: none + TTA
+Traceback (most recent call last):
+  File "/data/smadper@alumno.upv.es/TFM/src/test.py", line 220, in <module>
+    main()
+  File "/data/smadper@alumno.upv.es/TFM/src/test.py", line 208, in main
+    method_name, loss, metrics = evaluate_with_postprocessing(
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data/smadper@alumno.upv.es/TFM/src/test.py", line 77, in evaluate_with_postprocessing
+    avg_loss, metrics = test_model(
+                        ^^^^^^^^^^^
+  File "/data/smadper@alumno.upv.es/TFM/src/test.py", line 110, in test_model
+    batch_preds = apply_tta(model, patch_batch)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data/smadper@alumno.upv.es/TFM/src/test.py", line 43, in apply_tta
+    pred = model(flipped_input)
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/data/smadper@alumno.upv.es/miniconda3/envs/tfm/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data/smadper@alumno.upv.es/miniconda3/envs/tfm/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data/smadper@alumno.upv.es/miniconda3/envs/tfm/lib/python3.12/site-packages/segmentation_models_pytorch/base/model.py", line 66, in forward
+    features = self.encoder(x)
+               ^^^^^^^^^^^^^^^
+  File "/data/smadper@alumno.upv.es/miniconda3/envs/tfm/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data/smadper@alumno.upv.es/miniconda3/envs/tfm/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data/smadper@alumno.upv.es/miniconda3/envs/tfm/lib/python3.12/site-packages/segmentation_models_pytorch/encoders/resnet.py", line 65, in forward
+    x = self.conv1(x)
+        ^^^^^^^^^^^^^
+  File "/data/smadper@alumno.upv.es/miniconda3/envs/tfm/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1751, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data/smadper@alumno.upv.es/miniconda3/envs/tfm/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1762, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data/smadper@alumno.upv.es/miniconda3/envs/tfm/lib/python3.12/site-packages/torch/nn/modules/conv.py", line 554, in forward
+    return self._conv_forward(input, self.weight, self.bias)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data/smadper@alumno.upv.es/miniconda3/envs/tfm/lib/python3.12/site-packages/torch/nn/modules/conv.py", line 549, in _conv_forward
+    return F.conv2d(
+           ^^^^^^^^^
+RuntimeError: Given groups=1, weight of size [64, 1, 7, 7], expected input[1, 2, 512, 512] to have 1 channels, but got 2 channels instead

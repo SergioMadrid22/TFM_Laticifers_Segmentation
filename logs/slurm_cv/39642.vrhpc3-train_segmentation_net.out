@@ -1,0 +1,22 @@
+2025-08-16 21:27:43 INFO Starting training with configuration: {'model': {'name': 'unet', 'encoder_name': 'swin_s3_small_224', 'encoder_weights': 'imagenet', 'classes': 1, 'activation': None, 'dropout': 0.2}, 'dataset': {'root': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers', 'patch_size': [512, 512], 'stride': [256, 256], 'num_patches': 50, 'num_workers': 8, 'positive_ratio': 0.8, 'fg_threshold': 0.04, 'feature_dirs': {'image': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/enhanced_images', 'mask': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/masks', 'distance': '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/distance_maps_pt'}}, 'train': {'batch_size': 32, 'num_epochs': 50, 'learning_rate': 0.001, 'accumulation_steps': 1, 'save_dir': '/data/smadper@alumno.upv.es/TFM/checkpoints_cv2/unet/20250816_212743_unet_swin_s3_small_224_bce0.5_dice0.5', 'log_interval': 1, 'patience': 100, 'mixed_precision': True, 'experiment_name': 'unet_swin_s3_small_224_bce0.5_dice0.5', 'timestamp': '20250816_212743'}, 'test': {'batch_size': 1}, 'loss': {'name': 'bce', 'cldice_alpha': 0.5, 'use_topographic': False, 'combine_with': 'dice', 'weights': {'main': 0.5, 'combined': 0.5}, 'topo': {'alpha': 2.0, 'beta': 1.0}}}
+2025-08-16 21:27:43 INFO Experiment name: unet_swin_s3_small_224_bce0.5_dice0.5
+2025-08-16 21:27:43 INFO ===== Fold 1 / 5 =====
+2025-08-16 21:27:43 INFO Loading model unet with settings {'name': 'unet', 'encoder_name': 'swin_s3_small_224', 'encoder_weights': 'imagenet', 'classes': 1, 'activation': None, 'dropout': 0.2}
+Traceback (most recent call last):
+  File "/data/smadper@alumno.upv.es/TFM/src/train_cv.py", line 299, in <module>
+    main(conf)
+  File "/data/smadper@alumno.upv.es/TFM/src/train_cv.py", line 237, in main
+    model = build_model(conf)
+            ^^^^^^^^^^^^^^^^^
+  File "/data/smadper@alumno.upv.es/TFM/src/models.py", line 168, in build_model
+    model = model_class(
+            ^^^^^^^^^^^^
+  File "/data/smadper@alumno.upv.es/miniconda3/envs/tfm/lib/python3.12/site-packages/segmentation_models_pytorch/base/hub_mixin.py", line 153, in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data/smadper@alumno.upv.es/miniconda3/envs/tfm/lib/python3.12/site-packages/segmentation_models_pytorch/decoders/unet/model.py", line 132, in __init__
+    self.encoder = get_encoder(
+                   ^^^^^^^^^^^^
+  File "/data/smadper@alumno.upv.es/miniconda3/envs/tfm/lib/python3.12/site-packages/segmentation_models_pytorch/encoders/__init__.py", line 98, in get_encoder
+    raise KeyError(
+KeyError: "Wrong encoder name `swin_s3_small_224`, supported encoders: ['resnet18', 'resnet34', 'resnet50', 'resnet101', 'resnet152', 'resnext50_32x4d', 'resnext101_32x4d', 'resnext101_32x8d', 'resnext101_32x16d', 'resnext101_32x32d', 'resnext101_32x48d', 'dpn68', 'dpn68b', 'dpn92', 'dpn98', 'dpn107', 'dpn131', 'vgg11', 'vgg11_bn', 'vgg13', 'vgg13_bn', 'vgg16', 'vgg16_bn', 'vgg19', 'vgg19_bn', 'senet154', 'se_resnet50', 'se_resnet101', 'se_resnet152', 'se_resnext50_32x4d', 'se_resnext101_32x4d', 'densenet121', 'densenet169', 'densenet201', 'densenet161', 'inceptionresnetv2', 'inceptionv4', 'efficientnet-b0', 'efficientnet-b1', 'efficientnet-b2', 'efficientnet-b3', 'efficientnet-b4', 'efficientnet-b5', 'efficientnet-b6', 'efficientnet-b7', 'mobilenet_v2', 'xception', 'timm-efficientnet-b0', 'timm-efficientnet-b1', 'timm-efficientnet-b2', 'timm-efficientnet-b3', 'timm-efficientnet-b4', 'timm-efficientnet-b5', 'timm-efficientnet-b6', 'timm-efficientnet-b7', 'timm-efficientnet-b8', 'timm-efficientnet-l2', 'timm-tf_efficientnet_lite0', 'timm-tf_efficientnet_lite1', 'timm-tf_efficientnet_lite2', 'timm-tf_efficientnet_lite3', 'timm-tf_efficientnet_lite4', 'timm-skresnet18', 'timm-skresnet34', 'timm-skresnext50_32x4d', 'mit_b0', 'mit_b1', 'mit_b2', 'mit_b3', 'mit_b4', 'mit_b5', 'mobileone_s0', 'mobileone_s1', 'mobileone_s2', 'mobileone_s3', 'mobileone_s4']"

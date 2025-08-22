@@ -1,27 +1,57 @@
 model:
   name: 'unet'
-  alias: 'unet_resnet18'
-  encoder_name: 'resnet18'
-  encoder_weights: None
-  in_channels: 1
+  encoder_name: 'timm-resnet50d'
+  encoder_weights: imagenet
   classes: 1
-  activation: 'sigmoid'
+  activation: null
   dropout: 0.2
 
 dataset:
-  root: '/home/smadper/TFM/datasets/laticifers'
-  image_size: [512, 512]
-  csv_name: 'laticifer_dataset_index.csv'
+  root: '/data/smadper@alumno.upv.es/TFM/datasets/laticifers'
+  patch_size: [512, 512]
+  stride: [256, 256]
+  num_patches: 50
+  num_workers: 4
+  #positive_ratio: 0.8
+  #fg_threshold: 0.04
+
+  feature_dirs:
+    image: '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/enhanced_images'
+    #sato: '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/sato_images'
+    mask: '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/masks'
+    distance: '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/distance_maps_pt'
+
 
 train:
-  batch_size: 4
-  num_epochs: 150
+  batch_size: 32
+  num_epochs: 70
   learning_rate: 0.001
   accumulation_steps: 1
-  save_dir: '/home/smadper/TFM/checkpoints'
+  save_dir: '/data/smadper@alumno.upv.es/TFM/checkpoints_cv2'
   log_interval: 1
-  patience: 15
+  patience: 20
+  mixed_precision: true
+#  curriculum_schedule:  # (epoch_threshold, dilation_level)
+#    - [0, 4]
+#    - [5, 3]
+#    - [10, 2]
+#    - [30, 0]
+
 
 test:
-  batch_size: 4
-  save_dir: '/home/smadper/TFM/results'
+  batch_size: 1
+
+loss:
+  name: "bce"       # Options: bce, dice, tversky, focal_tversky, ...
+  cldice_alpha: 0.2
+  tversky_alpha: 0.3
+  tversky_beta: 0.7
+  focal_tversky_gamma: 0.75
+  use_topographic: true     # If true, uses distance-weighted loss
+  combine_with: dice         # Optional: another loss to combine with
+  weights:
+    main: 0.5
+    combined: 0.5
+  topo:
+    alpha: 2.0
+    beta: 1.0

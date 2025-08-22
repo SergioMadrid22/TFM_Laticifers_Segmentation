@@ -39,7 +39,7 @@ def predict_with_dataset(
         threshold=0.5
     ):
     tmp_root = "temp_test_dataset"
-    os.makedirs(os.path.join(tmp_root, "enhanced"), exist_ok=True)
+    os.makedirs(os.path.join(tmp_root, "image"), exist_ok=True)
     os.makedirs(os.path.join(tmp_root, "mask"), exist_ok=True)  # Dummy GT mask
 
     fname = os.path.basename(image_path)
@@ -51,14 +51,14 @@ def predict_with_dataset(
         img_np = apply_clahe(img_np)
 
     # Save enhanced image
-    Image.fromarray(img_np).save(os.path.join(tmp_root, "enhanced", fname))
+    Image.fromarray(img_np).save(os.path.join(tmp_root, "image", fname))
 
     # Save dummy mask
     dummy_mask = Image.fromarray(np.zeros_like(img_np, dtype=np.uint8))
     dummy_mask.save(os.path.join(tmp_root, "mask", fname))
 
     feature_dirs = {
-        "enhanced": os.path.join(tmp_root, "enhanced"),
+        "image": os.path.join(tmp_root, "image"),
         "mask": os.path.join(tmp_root, "mask")
     }
 

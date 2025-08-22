@@ -2,18 +2,6 @@ import os
 import json
 import torch
 from datetime import datetime
-import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__))))
-from metrics import (
-    dice_loss, tversky_loss, focal_tversky_loss,
-    topographic_loss, combined_topo_tversky_dice,
-    bce_dice_topographic_loss, hausdorff_loss
-)
-import torch.nn.functional as F
-#sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "clDice")))
-from clDice.cldice_loss.cldice import soft_cldice, soft_dice_cldice
-
-import numpy as np
 
 def patchify(image, patch_size, stride):
     """
@@ -78,48 +66,6 @@ def save_metadata(save_path, model, conf, best_dice, best_cldice, best_val_loss,
 
     with open(os.path.join(save_path, "metadata.json"), "w") as f:
         json.dump(metadata, f, indent=4)
-
-
-def get_loss_function(conf):
-    name = conf['loss']['name'].lower()
-    use_topo = conf['loss'].get('use_topographic', False)
-    combine = conf['loss'].get('combine_with', None)
-    w_main = conf['loss']['weights'].get('main', 1.0)
-    w_comb = conf['loss']['weights'].get('combined', 0.0)
-    topo_a = conf['loss']['topo'].get('alpha', 2.0)
-    topo_b = conf['loss']['topo'].get('beta', 1.0)
-    cldice_a = conf['loss'].get('cldice_alpha', 0.5)
-    eps = 1e-7
-
-    def fn(preds, targets, dist=None):
-        if name == "cldice":
-            return soft_cldice()(targets, preds)
-        elif name == "dice_cldice":
-            return soft_dice_cldice(alpha=cldice_a)(targets, preds)
-        if use_topo and name in ('dice','tversky','focal_tversky','bce'):
-            if name=='focal_tversky' and combine=='dice' and w_comb > 0:
-                return combined_topo_tversky_dice(preds, targets, dist,
-                    topo_alpha=topo_a, tv_alpha=0.7, tv_beta=0.3, tv_gamma=0.75,
-                    dice_weight=w_comb, beta=topo_b, eps=eps)
-            if name=='bce' and combine=='dice' and w_comb > 0:
-                return bce_dice_topographic_loss(preds, targets, dist,
-                    alpha=topo_a, dice_weight=w_comb, beta=topo_b, eps=eps)
-            return topographic_loss(preds, targets, dist, base_loss=name, alpha=topo_a, beta=topo_b, eps=eps)
-        else:
-            loss_map = {
-                'bce': lambda p,t: F.binary_cross_entropy(p,t),
-                'dice': lambda p,t: dice_loss(p, t),
-                'tversky': lambda p,t: tversky_loss(p, t, alpha=0.5, beta=0.5),
-                'focal_tversky': lambda p,t: focal_tversky_loss(p, t, alpha=0.7, beta=0.3, gamma=0.75),
-                'hausdorff': lambda p,t: hausdorff_loss(p, t)
-            }
-            main = loss_map[name](preds, targets)
-            if combine:
-                comb = loss_map[combine](preds, targets)
-                return w_main*main + w_comb*comb
-            return main
-
-    return fn
 
 
 def reconstruct_from_patches2(patches, coords, image_size, patch_size):

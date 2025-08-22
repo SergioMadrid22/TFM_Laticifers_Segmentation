@@ -133,6 +133,7 @@ supported_encoders = [
     "timm-gernet_s",
     "timm-gernet_m",
     "timm-gernet_l",
+    "swin_s3_small_224",
 ]
 
 
@@ -223,90 +224,5 @@ class OwnUNet(nn.Module):
         d2 = self.dec2(torch.cat([self.up2(d3), e2], dim=1))
         d1 = self.dec1(torch.cat([self.up1(d2), e1], dim=1))
 
-        return torch.sigmoid(self.final(d1))
+        return self.final(d1)
     
-
-# --- Modified Encoder to return intermediate features ---
-class Encoder(nn.Module):
-    def __init__(self, in_channels=1, base_channels=64):
-        super().__init__()
-        self.enc1 = nn.Sequential(
-            nn.Conv2d(in_channels, base_channels, 3, padding=1), nn.ReLU(inplace=True),
-            nn.Conv2d(base_channels, base_channels, 3, padding=1), nn.ReLU(inplace=True)
-        )
-        self.enc2 = nn.Sequential(
-            nn.MaxPool2d(2),
-            nn.Conv2d(base_channels, base_channels*2, 3, padding=1), nn.ReLU(inplace=True),
-            nn.Conv2d(base_channels*2, base_channels*2, 3, padding=1), nn.ReLU(inplace=True)
-        )
-        self.enc3 = nn.Sequential(
-            nn.MaxPool2d(2),
-            nn.Conv2d(base_channels*2, base_channels*4, 3, padding=1), nn.ReLU(inplace=True),
-            nn.Conv2d(base_channels*4, base_channels*4, 3, padding=1), nn.ReLU(inplace=True)
-        )
-        self.enc4 = nn.Sequential(
-            nn.MaxPool2d(2),
-            nn.Conv2d(base_channels*4, base_channels*8, 3, padding=1), nn.ReLU(inplace=True),
-            nn.Conv2d(base_channels*8, base_channels*8, 3, padding=1), nn.ReLU(inplace=True)
-        )
-
-    def forward(self, x):
-        x1 = self.enc1(x)   # shape: B x base_channels x H x W
-        x2 = self.enc2(x1)  # shape: B x base_channels*2 x H/2 x W/2
-        x3 = self.enc3(x2)  # shape: B x base_channels*4 x H/4 x W/4
-        x4 = self.enc4(x3)  # shape: B x base_channels*8 x H/8 x W/8
-        return x1, x2, x3, x4
-
-
-# --- Decoder with skip connections ---
-class Decoder(nn.Module):
-    def __init__(self, out_channels=1, base_channels=64):
-        super().__init__()
-        self.up4 = nn.ConvTranspose2d(base_channels*8, base_channels*4, 2, stride=2)
-        self.dec4 = nn.Sequential(
-            nn.Conv2d(base_channels*8, base_channels*4, 3, padding=1), nn.ReLU(inplace=True),
-            nn.Conv2d(base_channels*4, base_channels*4, 3, padding=1), nn.ReLU(inplace=True)
-        )
-
-        self.up3 = nn.ConvTranspose2d(base_channels*4, base_channels*2, 2, stride=2)
-        self.dec3 = nn.Sequential(
-            nn.Conv2d(base_channels*4, base_channels*2, 3, padding=1), nn.ReLU(inplace=True),
-            nn.Conv2d(base_channels*2, base_channels*2, 3, padding=1), nn.ReLU(inplace=True)
-        )
-
-        self.up2 = nn.ConvTranspose2d(base_channels*2, base_channels, 2, stride=2)
-        self.dec2 = nn.Sequential(
-            nn.Conv2d(base_channels*2, base_channels, 3, padding=1), nn.ReLU(inplace=True),
-            nn.Conv2d(base_channels, base_channels, 3, padding=1), nn.ReLU(inplace=True)
-        )
-
-        self.final = nn.Conv2d(base_channels, out_channels, 1)
-
-    def forward(self, x1, x2, x3, x4):
-        d4 = self.up4(x4)                 # Upsample x4 from 1/8 → 1/4 scale
-        d4 = torch.cat([d4, x3], dim=1)  # Concat skip connection
-        d4 = self.dec4(d4)
-
-        d3 = self.up3(d4)                 # Upsample 1/4 → 1/2 scale
-        d3 = torch.cat([d3, x2], dim=1)
-        d3 = self.dec3(d3)
-
-        d2 = self.up2(d3)                 # Upsample 1/2 → original scale
-        d2 = torch.cat([d2, x1], dim=1)
-        d2 = self.dec2(d2)
-
-        out = self.final(d2)
-        return out
-
-
-# --- Full U-Net with pretrained encoder ---
-class UNetWithPretrainedEncoder(nn.Module):
-    def __init__(self, pretrained_encoder, out_channels=1):
-        super().__init__()
-        self.encoder = pretrained_encoder
-        self.decoder = Decoder(out_channels=out_channels, base_channels=64)
-
-    def forward(self, x):
-        x1, x2, x3, x4 = self.encoder(x)
-        out = self.decoder(x1, x2, x3, x4)
-        return torch.sigmoid(out)

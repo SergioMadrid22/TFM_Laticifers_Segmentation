@@ -3,9 +3,9 @@ from datasets import get_patch_dataloaders
 from train import test_model
 from skimage.morphology import binary_closing, remove_small_objects, skeletonize, disk
 from skimage.measure import label
-from utils import get_loss_function, reconstruct_from_patches
+from utils import reconstruct_from_patches
 import matplotlib.pyplot as plt
-from metrics import compute_metrics
+from metrics import compute_metrics, get_loss_function
 from clDice.cldice_metric.cldice import clDice as compute_cldice
 from PIL import Image
 
@@ -156,7 +156,7 @@ def test_model(model, test_loader, conf, save_dir=None, return_metrics_only=Fals
 
             if not return_metrics_only:
                 fig, axes = plt.subplots(1, 3, figsize=(15, 5))
-                img_path = os.path.join(test_loader.dataset.feature_dirs['enhanced'], batch['filename'][0])
+                img_path = os.path.join(test_loader.dataset.feature_dirs['image'], batch['filename'][0])
                 img = np.array(Image.open(img_path).convert("L"))
 
                 axes[0].imshow(img, cmap='gray')

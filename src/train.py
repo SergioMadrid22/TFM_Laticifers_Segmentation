@@ -1,14 +1,13 @@
 import argparse, yaml, os, torch, numpy as np, random, logging, datetime
-from tqdm import tqdm
 import matplotlib.pyplot as plt
 from PIL import Image
-import segmentation_models_pytorch as smp
 from models import build_model
 from datasets import get_patch_dataloaders
-from metrics import compute_metrics
-from utils import save_metadata, get_loss_function, reconstruct_from_patches
+from metrics import compute_metrics, get_loss_function
+from utils import save_metadata, reconstruct_from_patches
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from clDice.cldice_metric.cldice import clDice as compute_cldice
+from sklearn.model_selection import train_test_split
 
 def set_seed(seed=42):
     np.random.seed(seed)
@@ -187,10 +186,20 @@ def train_model(model, train_loader, test_loader, conf):
 
 def main(conf):
     model = build_model(conf)
-    train_loader, test_loader = get_patch_dataloaders(conf)
+    
+    # Get available filenames from mask folder
+    feature_dirs = conf['dataset']['feature_dirs']
+    mask_dir = feature_dirs['mask']
+    all_filenames = [f for f in os.listdir(mask_dir) if f.endswith(".tif")]
+    all_filenames.sort()
+
+    train_filenames, val_filenames = train_test_split(
+        all_filenames, test_size=0.1, random_state=42
+    )
+
+    train_loader, test_loader = get_patch_dataloaders(conf, train_filenames, val_filenames)
     best_model_path, best_dice, best_cldice, best_val_loss, best_epoch = train_model(model, train_loader, test_loader, conf)
     save_metadata(os.path.dirname(best_model_path), model, conf, best_dice, best_cldice, best_val_loss, best_epoch)
-    #model.load_state_dict(torch.load(best_model_path))
     model = torch.load(best_model_path, weights_only=False)
     save_dir = os.path.dirname(best_model_path)
     avg_val_loss, test_metrics = test_model(model, test_loader, conf, save_dir)
