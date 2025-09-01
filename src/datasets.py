@@ -62,7 +62,7 @@ class LaticiferPatchTrain(Dataset):
                     ),
                     A.GridDistortion(p=0.5, border_mode=cv2.BORDER_REFLECT_101),
                     A.OpticalDistortion(distort_limit=0.5, p=0.5, border_mode=cv2.BORDER_REFLECT_101)
-                ], p=0.0),
+                ], p=0.5),
 
                 # --- 3. Photometric and Quality Transformations ---
                 # This is the most important addition. It simulates real-world
@@ -70,7 +70,7 @@ class LaticiferPatchTrain(Dataset):
                 A.OneOf([
                     A.RandomBrightnessContrast(brightness_limit=[-0.2, 0.2], contrast_limit=[-0.2, 0.2], p=0.7),
                     A.RandomGamma(gamma_limit=(80, 120), p=0.5),
-                ], p=0.9),
+                ], p=0.7),
 
                 A.OneOf([
                     A.GaussianBlur(blur_limit=(3, 7), p=0.5),
@@ -226,9 +226,10 @@ class LaticiferPatchTest(Dataset):
             return torch.load(path, weights_only=True).squeeze(0).numpy()
         else:
             path = os.path.join(dir_path, fname)
-            img = np.array(Image.open(path).convert("L")).astype(np.float32) #/ 255.0
-            #if key == 'sato':
-            #    img = (img - img.min()) / (img.max() - img.min() + 1e-5) * 255.0
+            img = np.array(Image.open(path).convert("L")) #/ 255.0
+            if key in ['sato'] or (img.max() > 1 and img.max() < 255): # A heuristic to catch unnormalized images
+                if img.max() > 0: # Avoid division by zero for black images
+                    img = (img / img.max() * 255).astype(np.uint8)
             return img
 
     def __getitem__(self, idx):

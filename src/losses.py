@@ -31,34 +31,6 @@ def focal_tversky_loss(pred, target, alpha=0.5, beta=0.5, gamma=0.75, eps=1e-7):
     return (1 - tv).pow(gamma)
 
 
-def topographic_loss(preds, targets, distance_maps, base_loss='bce', alpha=2.0, beta=1.0, eps=1e-7):
-    """Distance-weighted pixel-wise loss (Topographic Loss)."""
-    dist_norm = distance_maps / (distance_maps.amax(dim=(2, 3), keepdim=True) + eps)
-    weights = (1.0 + dist_norm) ** alpha
-
-    if base_loss == 'bce':
-        loss_map = F.binary_cross_entropy(preds, targets, reduction='none')
-    elif base_loss == 'dice':
-        loss_map = 1 - (2. * (preds * targets) + eps) / (preds + targets + eps)
-    elif base_loss == 'focal_tversky':
-        return focal_tversky_loss(preds, targets).mean()
-    else:
-        raise ValueError(f"Unsupported base_loss: {base_loss}")
-
-    return beta * (weights * loss_map).mean()
-
-
-def bce_dice_topographic_loss(preds, targets, distance_maps, alpha=2.0, dice_weight=0.5, beta=1.0, eps=1e-7):
-    """BCE (topographic-weighted) + Soft Dice."""
-    dist_norm = distance_maps / (distance_maps.amax(dim=(2, 3), keepdim=True) + eps)
-    weights = (1.0 + dist_norm) ** alpha
-
-    bce_map = F.binary_cross_entropy(preds, targets, reduction='none')
-    topo_bce = beta * (weights * bce_map).mean()
-    dice_l = dice_loss(preds, targets, eps)
-    return topo_bce + dice_weight * dice_l
-
-
 def hausdorff_loss(preds, targets, eps=1e-7):
     """Approximate differentiable Hausdorff loss (Karimi et al. 2019)."""
     preds, targets = preds.squeeze(1), targets.squeeze(1)
@@ -127,7 +99,6 @@ def weighted_bce_loss(preds, targets, weight_map, beta=1.0):
 # ------------------------
 # FACTORY
 # ------------------------
-
 def get_loss_function(conf):
     """
     Constructs a loss function based on a configuration dictionary.
@@ -214,50 +185,3 @@ def get_loss_function(conf):
         return loss
 
     return final_loss_fn
-
-'''
-def get_loss_function(conf):
-    """Return configured loss function."""
-    name = conf['loss']['name'].lower()
-    use_topo = conf['loss'].get('use_topographic', False)
-    combine = conf['loss'].get('combine_with', None)
-    w_main = conf['loss']['weights'].get('main', 1.0)
-    w_comb = conf['loss']['weights'].get('combined', 0.0)
-    topo_a = conf['loss']['topo'].get('alpha', 2.0)
-    topo_b = conf['loss']['topo'].get('beta', 1.0)
-    cldice_a = conf['loss'].get('cldice_alpha', 0.5)
-    tversky_a = conf['loss'].get('tversky_alpha', 0.3)
-    tversky_b = conf['loss'].get('tversky_beta', 0.7)
-    focal_gamma = conf['loss'].get('focal_tversky_gamma', 0.75)
-
-    def fn(preds, targets, dist=None):
-        probs = preds.sigmoid()
-
-        # Special clDice family
-        if name == "cldice":
-            return soft_cldice()(targets, probs)
-        elif name == "dice_cldice":
-            return soft_dice_cldice(alpha=cldice_a)(targets, probs)
-
-        # Topographic variants
-        if use_topo and name in ('dice', 'tversky', 'focal_tversky', 'bce'):
-            if name == 'bce' and combine == 'dice' and w_comb > 0:
-                return bce_dice_topographic_loss(probs, targets, dist, alpha=topo_a, dice_weight=w_comb, beta=topo_b)
-            return topographic_loss(probs, targets, dist, base_loss=name, alpha=topo_a, beta=topo_b)
-
-        # Standard losses
-        loss_map = {
-            'bce': lambda p, t: F.binary_cross_entropy_with_logits(p, t),
-            'dice': lambda p, t: dice_loss(p, t),
-            'tversky': lambda p, t: tversky_loss(p, t, alpha=tversky_a, beta=tversky_b),
-            'focal_tversky': lambda p, t: focal_tversky_loss(p, t, alpha=tversky_a, beta=tversky_b, gamma=focal_gamma),
-            'hausdorff': lambda p, t: hausdorff_loss(p, t)
-        }
-        main = loss_map[name](preds if name == 'bce' else probs, targets)
-        if combine:
-            comb = loss_map[combine](preds if combine == 'bce' else probs, targets)
-            return w_main * main + w_comb * comb
-        return main
-
-    return fn
-'''

@@ -44,11 +44,10 @@ def test_model(model, test_loader, conf, save_dir=None, return_metrics_only=Fals
 
     with torch.no_grad():
         for idx, batch in enumerate(test_loader):
-            image_patches = batch['image_patches'].cuda()  # (N, C, H, W)
-            mask_patches = batch['mask_patches'].cuda()    # (N, 1, H, W)
+            image_patches = batch['image_patches'].cuda()
+            mask_patches = batch['mask_patches'].cuda()
             coords = batch['coords']
             image_size = batch['image_size']
-            image_idx = batch['image_idx']
             H_orig, W_orig = batch['original_size']
             B, N, C, H, W = image_patches.shape
             image_patches = image_patches.view(B * N, C, H, W)
@@ -60,10 +59,11 @@ def test_model(model, test_loader, conf, save_dir=None, return_metrics_only=Fals
                 with autocast(device_type='cuda'):
                     batch_preds = model(patch_batch)
                     if isinstance(batch_preds, tuple):
-                        batch_preds = batch_preds[0] 
+                        batch_preds = batch_preds[0]
                 preds.append(batch_preds)
             preds = torch.cat(preds, dim=0)
             probs = preds.sigmoid()
+            
             if use_topo:
                 distance_patches = batch['dist_patches'].cuda()
                 distance_patches = distance_patches.view(B * N, 1, H, W)
@@ -72,27 +72,42 @@ def test_model(model, test_loader, conf, save_dir=None, return_metrics_only=Fals
                 loss = loss_fn(preds, mask_patches)
 
             val_loss += loss.item()
-            # Reconstruct full-size prediction and mask from patches
-            pred_full = reconstruct_from_patches(probs, coords, image_size, patch_size)
+            
+            pred_full_prob = reconstruct_from_patches(probs, coords, image_size, patch_size)
             mask_full = reconstruct_from_patches(mask_patches, coords, image_size, patch_size)
 
-            pred_full = pred_full[:H_orig, :W_orig].unsqueeze(0).unsqueeze(0)
-            mask_full = mask_full[:H_orig, :W_orig].unsqueeze(0).unsqueeze(0)
-            # Compute metrics for this image
-            metrics = compute_metrics(pred_full, mask_full)
+            pred_full_prob = pred_full_prob[:H_orig, :W_orig]
+            mask_full = mask_full[:H_orig, :W_orig]
+
+            # Binarize for metrics and saving the raw prediction
+            pred_binary_np = (pred_full_prob.cpu().numpy() > 0.5).astype(np.uint8)
+
+            # --- METRICS COMPUTATION (on binarized mask) ---
+            pred_tensor = pred_full_prob.unsqueeze(0).unsqueeze(0)
+            mask_tensor = mask_full.unsqueeze(0).unsqueeze(0)
+            
+            metrics = compute_metrics(pred_tensor, mask_tensor)
             for key in metrics:
                 if key not in all_metrics:
                     all_metrics[key] = []
                 all_metrics[key].append(metrics[key])
 
-            # Optionally save prediction images and raw arrays
+            # --- VISUALIZATION & SAVING LOGIC ---
             if not return_metrics_only and epoch is not None:
                 if isinstance(epoch, str) and epoch == "best":
-                    epoch_pred_dir = os.path.join(save_dir, "val_predictions", "best_model")
+                    epoch_save_dir = os.path.join(save_dir, "val_outputs", "best_model")
                 else:
-                    epoch_pred_dir = os.path.join(save_dir, "val_predictions", f"epoch_{int(epoch):03d}")
-                os.makedirs(epoch_pred_dir, exist_ok=True)
+                    epoch_save_dir = os.path.join(save_dir, "val_outputs", f"epoch_{int(epoch):03d}")
+                os.makedirs(epoch_save_dir, exist_ok=True)
                 
+                base_filename = os.path.splitext(batch['filename'][0])[0]
+                
+                # Save the binarized prediction mask
+                pred_save_path = os.path.join(epoch_save_dir, f"{base_filename}_pred.png")
+                pred_img = Image.fromarray(pred_binary_np * 255)
+                pred_img.save(pred_save_path)
+                
+                # --- PLOT THE PROBABILITY MAP IN THE FIGURE ---
                 fig, axes = plt.subplots(1, 3, figsize=(15, 5))
                 img_path = os.path.join(test_loader.dataset.feature_dirs['image'], batch['filename'][0])
                 img = np.array(Image.open(img_path).convert("L"))
@@ -101,24 +116,29 @@ def test_model(model, test_loader, conf, save_dir=None, return_metrics_only=Fals
                 axes[0].set_title('Original Image')
                 axes[1].imshow(mask_full.squeeze().cpu().numpy(), cmap='gray')
                 axes[1].set_title('Ground Truth')
-                axes[2].imshow(pred_full.squeeze().cpu().numpy(), cmap='gray')
-                axes[2].set_title("Prediction")
+                
+                # Use the probability map for visualization with a color map
+                im = axes[2].imshow(pred_full_prob.cpu().numpy(), cmap='viridis', vmin=0, vmax=1)
+                axes[2].set_title("Prediction (Probability Map)")
+                fig.colorbar(im, ax=axes[2], fraction=0.046, pad=0.04) # Add a colorbar
+                
                 for ax in axes: 
                     ax.axis('off')
-
-                # Add metrics in a free text box (outside axes[2])
+                
+                # Metrics displayed are still from the binarized version, which is correct
                 metrics_text = "\n".join([f"{k}: {metrics[k]:.3f}" for k in sorted(metrics)])
                 fig.text(0.92, 0.5, metrics_text, va='center', ha='left', fontsize=9,
                         bbox=dict(facecolor='white', alpha=0.7, edgecolor='black'))
 
-                plt.tight_layout(rect=[0, 0, 0.9, 1])  # leave space on the right for metrics
-                save_path = os.path.join(epoch_pred_dir, f"val_image_{idx}.png")
-                plt.savefig(save_path)
+                plt.tight_layout(rect=[0, 0, 0.9, 1])
+                
+                figure_save_path = os.path.join(epoch_save_dir, f"{base_filename}_comparison.png")
+                plt.savefig(figure_save_path)
                 plt.close()
+                # --- END OF MODIFIED PART ---
 
             torch.cuda.empty_cache()
 
-    # Average metrics over all images
     avg_metrics = {k: np.nanmean(v) for k, v in all_metrics.items()}
     avg_metrics['val_loss'] = val_loss / len(test_loader)
     return avg_metrics
@@ -135,7 +155,7 @@ def train_model(model, train_loader, test_loader, save_dir, conf):
     scaler = GradScaler() 
 
     best_dice, best_cldice, best_val_loss = 0.0, 0.0, float('inf')
-    best_soft_dice, best_soft_clDice = float('inf'), float('inf')
+    best_soft_dice, best_soft_clDice = 0.0, float('inf')
     best_epoch, counter = 0, 0
     best_model_path = None
     accumulation_steps = conf['train'].get('accumulation_steps', 1)
@@ -198,16 +218,17 @@ def train_model(model, train_loader, test_loader, save_dir, conf):
             best_dice = avg_metrics['Dice']
         if avg_metrics['clDice'] > best_cldice:
             best_cldice = avg_metrics['clDice']
-        if avg_metrics['softDice'] < best_soft_dice:
-            best_soft_dice = avg_metrics['softDice']
-            best_epoch = epoch
-            torch.save(model, os.path.join(save_dir, "best_model_soft_dice.pth"))
+        if avg_metrics['softclDice'] < best_soft_clDice:
+            best_soft_clDice = avg_metrics['softclDice']
+            torch.save(model, os.path.join(save_dir, "best_model_soft_clDice.pth"))
         if avg_val_loss < best_val_loss:
             best_val_loss = avg_val_loss
             torch.save(model, os.path.join(save_dir, "best_model_loss.pth"))
-        if avg_metrics['softclDice'] < best_soft_clDice:
-            best_soft_clDice = avg_metrics['softclDice']
-            best_model_path = os.path.join(save_dir, "best_model_soft_clDice.pth")
+        if avg_metrics['softDice'] > best_soft_dice:
+            best_soft_dice = avg_metrics['softDice']
+            best_epoch = epoch
+            counter = 0
+            best_model_path = os.path.join(save_dir, "best_model_soft_dice.pth")
             torch.save(model, best_model_path)
         else:
             counter += 1
@@ -284,21 +305,34 @@ def main(conf):
             val_loader,
             conf,
             save_dir=fold_save_dir,
-            return_metrics_only=False,
-            epoch="best"   # <-- custom tag so predictions go into "epoch_best"
+            return_metrics_only=False, # Set to True to speed up final evaluation
+            epoch="best"
         )
         fold_results.append(test_metrics)
 
         logging.info(f"Fold {fold+1} results: " + " | ".join([f"{k}: {v:.4f}" for k,v in test_metrics.items()]))
 
-    # Average metrics over folds
-    avg_metrics = {k: np.mean([fr[k] for fr in fold_results]) for k in fold_results[0]}
-    logging.info("===== Cross-validation results =====")
-    logging.info(" | ".join([f"{k}: {v:.4f}" for k,v in avg_metrics.items()]))
+    # --- MODIFIED PART STARTS HERE ---
 
-    # Save results
+    # Convert fold results to a DataFrame
     results_df = pd.DataFrame(fold_results)
-    results_df.loc['mean'] = results_df.mean()
+    
+    # Calculate mean and standard deviation for all metrics
+    mean_metrics = results_df.mean()
+    std_metrics = results_df.std()
+
+    # Append mean and std as new rows to the DataFrame
+    results_df.loc['mean'] = mean_metrics
+    results_df.loc['std'] = std_metrics
+
+    # Log the final aggregated results
+    logging.info("===== Cross-validation results =====")
+    log_msg_mean = "Mean: " + " | ".join([f"{k}: {v:.4f}" for k, v in mean_metrics.items()])
+    log_msg_std = "Std Dev: " + " | ".join([f"{k}: {v:.4f}" for k, v in std_metrics.items()])
+    logging.info(log_msg_mean)
+    logging.info(log_msg_std)
+
+    # Save the complete DataFrame (including folds, mean, and std) to a CSV file
     results_df.to_csv(os.path.join(save_dir, "cv_results.csv"))
 
 

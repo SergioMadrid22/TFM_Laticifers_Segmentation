@@ -21,3 +21,6 @@ ipynb_checkpoints/
 env/
 create*images.py
 launch*.sh
+discarded_runs
+predictions
+logs

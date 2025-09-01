@@ -5,7 +5,7 @@
 #SBATCH -G 1
 #SBATCH -t 5-00:00
 #SBATCH -c 4
-#SBATCH -o logs/slurm_cv/%J.%N-%x.out
+#SBATCH -o logs/slurm_cv2/%J.%N-%x.out
 #SBATCH -J train_segmentation_net
 
 config_file=$1

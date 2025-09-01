@@ -153,6 +153,7 @@ def build_model(conf):
             in_channels=in_channels,
             out_channels=conf['model']['classes']
         )
+        return model
 
     # For standard SMP models
     if model_name not in supported_models:
