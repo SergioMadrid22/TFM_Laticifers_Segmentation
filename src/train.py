@@ -88,11 +88,13 @@ def test_model(model, test_loader, conf, save_dir=None, return_metrics_only=Fals
             if not return_metrics_only and epoch is not None and idx < 5:
                 if isinstance(epoch, str) and epoch == "best":
                     epoch_save_dir = os.path.join(save_dir, "val_outputs", "best_model")
+                    os.makedirs(epoch_save_dir, exist_ok=True)
                 elif isinstance(epoch, int):
                     epoch_save_dir = os.path.join(save_dir, "val_outputs", f"epoch_{int(epoch):03d}")
+                    os.makedirs(epoch_save_dir, exist_ok=True)
                 else:
                     continue
-
+                
                 base_filename = os.path.splitext(batch['filename'][0])[0]
 
                 # Save the binarized prediction mask
