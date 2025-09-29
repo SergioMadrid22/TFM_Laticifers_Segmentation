@@ -18,7 +18,8 @@ class LaticiferPatchTrain(Dataset):
         dist_transform=False,
         fg_threshold=0.03,
         filenames=None,
-        curriculum_level=0
+        curriculum_level=0,
+        curriculum_dir=None
     ):
         self.feature_dirs = feature_dirs
         self.patch_size = patch_size
@@ -27,6 +28,18 @@ class LaticiferPatchTrain(Dataset):
         self.dist_transform = dist_transform
         self.fg_threshold = fg_threshold
         self.curriculum_level = curriculum_level
+        self.curriculum_dir = curriculum_dir
+
+        # Store all possible mask directories ---
+        self.mask_dirs = {0: self.feature_dirs['mask']} # Level 0 is the original
+        if self.curriculum_dir:
+            for d in os.listdir(self.curriculum_dir):
+                if d.startswith('level_'):
+                    try:
+                        level = int(d.split('_')[1])
+                        self.mask_dirs[level] = os.path.join(self.curriculum_dir, d)
+                    except (ValueError, IndexError):
+                        continue # Ignore directories not matching the format
 
         self.filenames = filenames if filenames is not None else sorted(os.listdir(self.feature_dirs['mask']))
         additional_targets = {
@@ -93,6 +106,9 @@ class LaticiferPatchTrain(Dataset):
         return len(self.samples)
 
     def _load_feature(self, dir_path, fname, key=None):
+        if key == 'mask':
+            path = os.path.join(dir_path, fname)
+            #print(f"Mask path: {path}")
         if key == 'distance':
             fname = os.path.splitext(fname)[0] + '.pt'
             path = os.path.join(dir_path, fname)
@@ -135,8 +151,14 @@ class LaticiferPatchTrain(Dataset):
         file_idx = self.samples[idx]
         fname = self.filenames[file_idx]
 
-        mask = self._load_feature(self.feature_dirs['mask'], fname, key='mask') // 255
-        mask = self._apply_curriculum(mask)
+        # --- DYNAMIC MASK PATH SELECTION ---
+        # Get the correct mask directory based on the *current* curriculum_level
+        current_mask_dir = self.mask_dirs.get(self.curriculum_level)
+        if current_mask_dir is None:
+            raise ValueError(f"No precomputed masks found for curriculum level {self.curriculum_level}. "
+                             f"Available levels: {list(self.mask_dirs.keys())}")
+
+        mask = self._load_feature(current_mask_dir, fname, key='mask') // 255
 
         H, W = mask.shape
 
@@ -313,7 +335,7 @@ class LaticiferPatchTest(Dataset):
         return result
 
 
-def get_patch_dataloaders(conf, train_filenames, val_filenames):
+def get_patch_dataloaders(conf, train_filenames=None, val_filenames=None):
     patch_size = tuple(conf['dataset'].get('patch_size', (512, 512)))
     num_patches = conf['dataset'].get('num_patches', 20)
     stride = tuple(conf['dataset'].get('stride', (patch_size[0] // 2, patch_size[1] // 2)))
@@ -321,41 +343,45 @@ def get_patch_dataloaders(conf, train_filenames, val_filenames):
     dist_transform = conf['loss'].get('use_topographic', False)
     fg_threshold = conf['dataset'].get('fg_threshold', 0.0)
     positive_ratio = conf['dataset'].get('positive_ratio', 0.0)
+    curriculum_dir = conf['dataset'].get('curriculum_dir', None)
 
     feature_dirs = conf['dataset']['feature_dirs']
+    train_loader = None
+    val_loader = None
 
-    # Train dataset
-    train_dataset = LaticiferPatchTrain(
-        feature_dirs=feature_dirs,
-        filenames=train_filenames,
-        patch_size=patch_size,
-        patches_per_image=num_patches,
-        positive_ratio=positive_ratio,
-        dist_transform=dist_transform,
-        fg_threshold=fg_threshold
-    )
+    if train_filenames:
+        # Train dataset
+        train_dataset = LaticiferPatchTrain(
+            feature_dirs=feature_dirs,
+            filenames=train_filenames,
+            patch_size=patch_size,
+            patches_per_image=num_patches,
+            positive_ratio=positive_ratio,
+            dist_transform=dist_transform,
+            fg_threshold=fg_threshold,
+            curriculum_dir=curriculum_dir
+        )
+        train_loader = DataLoader(
+            train_dataset,
+            batch_size=conf['train']['batch_size'],
+            shuffle=True,
+            num_workers=num_workers
+        )
 
     # Val dataset
-    val_dataset = LaticiferPatchTest(
-        feature_dirs=feature_dirs,
-        filenames=val_filenames,
-        patch_size=patch_size,
-        stride=stride,
-        dist_transform=dist_transform
-    )
-
-    train_loader = DataLoader(
-        train_dataset,
-        batch_size=conf['train']['batch_size'],
-        shuffle=True,
-        num_workers=num_workers
-    )
-
-    val_loader = DataLoader(
-        val_dataset,
-        batch_size=conf['test']['batch_size'],
-        shuffle=False,
-        num_workers=num_workers
-    )
+    if val_filenames:
+        val_dataset = LaticiferPatchTest(
+            feature_dirs=feature_dirs,
+            filenames=val_filenames,
+            patch_size=patch_size,
+            stride=stride,
+            dist_transform=dist_transform
+        )
+        val_loader = DataLoader(
+            val_dataset,
+            batch_size=conf['test']['batch_size'],
+            shuffle=False,
+            num_workers=num_workers
+        )
 
     return train_loader, val_loader

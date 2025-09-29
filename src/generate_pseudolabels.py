@@ -5,7 +5,6 @@ import numpy as np
 from tqdm import tqdm
 from PIL import Image
 import torch
-from torch.utils.data import DataLoader
 import sys
 
 # Add src to path

@@ -11,6 +11,6 @@
 config_file=$1
 exp_name=$2
 
-python src/train_cv.py \
+python src/train.py \
     -c $config_file \
     -e $exp_name

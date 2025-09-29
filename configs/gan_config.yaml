@@ -28,9 +28,14 @@ train:
   num_epochs: 80
   learning_rate: 0.001
   accumulation_steps: 2
-  save_dir: '/data/smadper@alumno.upv.es/TFM/checkpoints_tmp'
+  save_dir: '/data/smadper@alumno.upv.es/TFM/checkpoints_gan'
   log_interval: 1
-  patience: 10
+  patience: 20
+  # --- NEW GAN-SPECIFIC PARAMETERS ---
+  learning_rate_g: 0.0005  # Generator LR, often lower than standard training
+  learning_rate_d: 0.0002  # Discriminator LR
+  lambda_seg: 100          # Weight of the segmentation loss vs. the adversarial loss. VERY IMPORTANT hyperparameter.
+
   mixed_precision: true
 #  curriculum_schedule:  # (epoch_threshold, dilation_level)
 #    - [0, 4]
@@ -44,15 +49,15 @@ test:
   batch_size: 1
 
 loss:
-  name: "bce"       # Options: bce, dice, tversky, focal_tversky, ...
-  combine_with: tversky         # Optional: another loss to combine with
+  name: "dice_cldice"       # Options: bce, dice, tversky, focal_tversky, ...
+  combine_with: null         # Optional: another loss to combine with
   weights:
-    main: 0.5
-    combined: 1.0
+    main: 1.0
+    combined: 0.0
   tversky_alpha: 0.3
   tversky_beta: 0.7
   focal_tversky_gamma: 0.75
-  cldice_alpha: 0.05
+  cldice_alpha: 0.1
   use_topographic: false     # If true, uses distance-weighted loss
   topo:
     alpha: 2.0

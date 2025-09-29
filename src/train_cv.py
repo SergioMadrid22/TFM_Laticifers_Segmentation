@@ -118,9 +118,8 @@ def test_model(model, test_loader, conf, save_dir=None, return_metrics_only=Fals
                 axes[1].set_title('Ground Truth')
                 
                 # Use the probability map for visualization with a color map
-                im = axes[2].imshow(pred_full_prob.cpu().numpy(), cmap='viridis', vmin=0, vmax=1)
-                axes[2].set_title("Prediction (Probability Map)")
-                fig.colorbar(im, ax=axes[2], fraction=0.046, pad=0.04) # Add a colorbar
+                im = axes[2].imshow(pred_full_prob.cpu().numpy(), cmap='gray')
+                axes[2].set_title("Prediction")
                 
                 for ax in axes: 
                     ax.axis('off')
@@ -135,7 +134,6 @@ def test_model(model, test_loader, conf, save_dir=None, return_metrics_only=Fals
                 figure_save_path = os.path.join(epoch_save_dir, f"{base_filename}_comparison.png")
                 plt.savefig(figure_save_path)
                 plt.close()
-                # --- END OF MODIFIED PART ---
 
             torch.cuda.empty_cache()
 
@@ -164,14 +162,19 @@ def train_model(model, train_loader, test_loader, save_dir, conf):
     os.makedirs(save_dir, exist_ok=True)
 
     curriculum_schedule = conf['train'].get('curriculum_schedule', [])
+    current_level = -1
+
     for epoch in range(1, conf['train']['num_epochs'] + 1):
         # Apply Curriculum Learning Level if specified
-        curriculum_level = 0
+        new_level = 0
         for ep_threshold, level in curriculum_schedule:
             if epoch >= ep_threshold:
-                curriculum_level = level
-        if hasattr(train_loader.dataset, 'curriculum_level'):
-            train_loader.dataset.curriculum_level = curriculum_level
+                new_level = level
+
+        if new_level != current_level:
+            current_level = new_level
+            logging.info(f"--- Epoch {epoch}: Setting curriculum level to {current_level} ---")
+            train_loader.dataset.curriculum_level = current_level
 
         model.train()
         train_loss = 0.0

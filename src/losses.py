@@ -113,7 +113,7 @@ def get_loss_function(conf):
     w_comb = conf['loss']['weights'].get('combined', 0.0)
     
     topo_a = conf['loss']['topo'].get('alpha', 2.0)
-    topo_b = conf['loss']['topo'].get('beta', 1.0) # Used for weighted BCE
+    topo_b = conf['loss']['topo'].get('beta', 1.0)
     
     cldice_a = conf['loss'].get('cldice_alpha', 0.5)
     tversky_a = conf['loss'].get('tversky_alpha', 0.3)

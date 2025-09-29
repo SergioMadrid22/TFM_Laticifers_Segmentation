@@ -20,6 +20,9 @@ supported_models = {
 
 # List of supported encoders for 'segmentation_models_pytorch' package
 supported_encoders = [
+    "mit_b2",
+    "swin_base_patch4_window7_224",
+    "maxvit_base_tf_512",
     "resnet18",
     "resnet34",
     "resnet50",

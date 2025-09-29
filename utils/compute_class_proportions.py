@@ -4,10 +4,10 @@ from PIL import Image
 from glob import glob
 from tqdm import tqdm
 
-# --- CONFIGURATION ---
-MASK_DIR = '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/masks' # Your mask directory
 
-# --- SCRIPT ---
+MASK_DIR = '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/masks'
+
+
 def compute_class_proportions(mask_directory):
     """
     Computes the average proportion of foreground (laticifer) and background
@@ -28,7 +28,7 @@ def compute_class_proportions(mask_directory):
             mask_img = Image.open(mask_path).convert('L')
             mask_np = np.array(mask_img)
             
-            # Binarize the mask (assuming foreground is > 127)
+            # Binarize the mask
             mask_bin = (mask_np > 127).astype(np.uint8)
             
             # Update counts

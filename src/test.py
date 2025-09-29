@@ -1,11 +1,12 @@
 import argparse, yaml, os, torch, numpy as np, random, logging
 from datasets import get_patch_dataloaders
-from train import test_model
+from train_cv import test_model
 from skimage.morphology import binary_closing, remove_small_objects, skeletonize, disk
 from skimage.measure import label
 from utils import reconstruct_from_patches
 import matplotlib.pyplot as plt
-from metrics import compute_metrics, get_loss_function
+from metrics import compute_metrics
+from losses import get_loss_function
 from clDice.cldice_metric.cldice import clDice as compute_cldice
 from PIL import Image
 
