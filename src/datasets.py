@@ -139,13 +139,6 @@ class LaticiferPatchTrain(Dataset):
         print("POSITIVE PATCH SEARCH FAILED!")
         return self._random_patch_coords(H, W)
 
-    def _apply_curriculum(self, mask):
-        """Applies morphological dilation to the mask based on curriculum level."""
-        if self.curriculum_level <= 0:
-            return mask
-        kernel = np.ones((3, 3), np.uint8)
-        mask_dilated = cv2.dilate(mask.astype(np.uint8), kernel, iterations=self.curriculum_level)
-        return mask_dilated.clip(0, 1)
 
     def __getitem__(self, idx):
         file_idx = self.samples[idx]
@@ -379,7 +372,7 @@ def get_patch_dataloaders(conf, train_filenames=None, val_filenames=None):
         )
         val_loader = DataLoader(
             val_dataset,
-            batch_size=conf['test']['batch_size'],
+            batch_size=1,
             shuffle=False,
             num_workers=num_workers
         )

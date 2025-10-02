@@ -68,16 +68,6 @@ def save_metadata(save_path, model, conf, best_dice, best_cldice, best_val_loss,
         json.dump(metadata, f, indent=4)
 
 
-def reconstruct_from_patches2(patches, coords, image_size, patch_size):
-    H, W = map(int, image_size)
-    full_prob = torch.zeros((H, W), device=patches.device)
-    count = torch.zeros((H, W), device=patches.device)
-    for patch, (top, left) in zip(patches, coords):
-        full_prob[top:top+patch_size[0], left:left+patch_size[1]] += patch.squeeze(0)
-        count[top:top+patch_size[0], left:left+patch_size[1]] += 1
-    return (full_prob / count.clamp(min=1e-7)).clamp(0, 1)
-
-
 def reconstruct_from_patches(patches, coords, image_size, patch_size):
     H, W = map(int, image_size)
     full_prob = torch.zeros((H, W), device=patches.device)
