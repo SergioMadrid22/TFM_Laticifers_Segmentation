@@ -4,6 +4,7 @@ import argparse
 import numpy as np
 from PIL import Image
 import napari
+from magicgui import magicgui
 from qtpy.QtWidgets import QFileDialog
 
 def load_image(path):
@@ -18,11 +19,9 @@ def save_mask(mask_np, path):
     print(f"✅ Corrected mask saved to: {path}")
 
 def run_gui(image_path, pred_mask_path, output_path):
-    # Load image and predicted mask from disk (no inference here)
     img_np = load_image(image_path)
     pred_mask_np = load_mask(pred_mask_path)
 
-    # Launch Napari
     viewer = napari.Viewer()
     viewer.add_image(img_np, name="Original Image", colormap='gray', contrast_limits=[0, 255])
     label_layer = viewer.add_labels(pred_mask_np, name="Predicted Mask", opacity=0.6)
@@ -30,7 +29,7 @@ def run_gui(image_path, pred_mask_path, output_path):
     print("🖱 Use the brush and eraser tools in Napari to correct the mask.")
     print("💾 After you're done, close the viewer to save the corrected mask.")
 
-    @viewer.window.add_dock_widget(name="Save Corrected Mask", area="right")
+    @magicgui(call_button="💾 Save Corrected Mask")
     def save_button():
         file_path, _ = QFileDialog.getSaveFileName(
             caption="Save corrected mask as",
@@ -40,6 +39,7 @@ def run_gui(image_path, pred_mask_path, output_path):
         if file_path:
             save_mask(label_layer.data.astype(np.uint8), file_path)
 
+    viewer.window.add_dock_widget(save_button, area="right")
     napari.run()
 
 if __name__ == "__main__":

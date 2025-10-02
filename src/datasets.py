@@ -78,8 +78,7 @@ class LaticiferPatchTrain(Dataset):
                 ], p=0.5),
 
                 # --- 3. Photometric and Quality Transformations ---
-                # This is the most important addition. It simulates real-world
-                # variations in lighting, staining, focus, and sensor noise.
+                # Simulates real-world variations in lighting, staining, focus, and sensor noise.
                 A.OneOf([
                     A.RandomBrightnessContrast(brightness_limit=[-0.2, 0.2], contrast_limit=[-0.2, 0.2], p=0.7),
                     A.RandomGamma(gamma_limit=(80, 120), p=0.5),

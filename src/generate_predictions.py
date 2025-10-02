@@ -11,7 +11,7 @@ from glob import glob
 from tqdm import tqdm
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
-import cv2 # OpenCV is needed for color conversion and blending
+import cv2 
 
 def set_seed(seed=42):
     np.random.seed(seed)
