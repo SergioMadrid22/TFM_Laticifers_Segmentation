@@ -2,6 +2,7 @@ import segmentation_models_pytorch as smp
 import torch
 import logging
 import torch.nn as nn
+from deep_closing_modules import Unet_MIM, Simple_Point_Erosion_Module
 
 logger = logging.getLogger(__name__)
 
@@ -149,6 +150,30 @@ def build_model(conf):
     if 'distance' in feature_dirs:
         in_channels -= 1
 
+    # --- NEW LOGIC FOR DEEP CLOSING MODELS ---
+    # Add a special case for the masked autoencoder pre-training step
+    if model_name == 'unet_mim':
+        logging.info("Building Unet_MIM for pre-training.")
+        model = Unet_MIM(
+            in_channels=conf['model'].get('in_channels', 1),
+            out_channels=conf['model'].get('out_channels', 1),
+            mask_ratio=tuple(conf['model']['mask_ratio']),
+            patch_size=(conf['model']['patch_size_h'], conf['model']['patch_size_w'])
+        )
+        return model
+        
+    # Add a special case for building the final DeepClosing model
+    if model_name == 'deepclosing_refiner':
+        logging.info("Building DeepClosingRefiner model.")
+        # Load the pre-trained autoencoder (Deep Dilation module)
+        ae_path = conf['model']['autoencoder_path']
+        if not os.path.exists(ae_path):
+            raise FileNotFoundError(f"Pre-trained autoencoder not found at: {ae_path}")
+        logging.info(f"Loading pre-trained autoencoder from {ae_path}")
+        autoencoder = torch.load(ae_path, map_location='cpu')
+        
+        model = DeepClosingRefiner(autoencoder)
+        return model
     # Custom U-Net with pretrained encoder
     if model_name == 'ownunet':
         logging.info("Loading custom OwnUNet model.")
@@ -230,3 +255,73 @@ class OwnUNet(nn.Module):
 
         return self.final(d1)
     
+# =========================================================================
+#  ------ NEW DEEP CLOSING REFINER MODEL ------
+# =========================================================================
+# This is the final model for the refinement stage.
+
+class DeepClosingRefiner(nn.Module):
+    """
+    Encapsulates the full Deep Closing pipeline:
+    1. A pre-trained autoencoder acts as a "Deep Dilation" module.
+    2. A Simple Point Erosion module acts as a "Deep Erosion" module.
+    
+    This model is NOT trained. It's used for inference only.
+    """
+    def __init__(self, pretrained_autoencoder, device=torch.device("cuda:0")):
+        super().__init__()
+        self.device = device
+        
+        # 1. The Deep Dilation module is the pre-trained Unet_MIM's internal network.
+        #    We freeze it as it should not be trained further.
+        self.deep_dilation_net = pretrained_autoencoder.net
+        for param in self.deep_dilation_net.parameters():
+            param.requires_grad = False
+        
+        # 2. The Deep Erosion module
+        self.erosion_module = Simple_Point_Erosion_Module(device=self.device)
+        
+        self.to(self.device)
+        self.eval() # This module is always in evaluation mode.
+
+    @torch.no_grad()
+    def forward(self, initial_prediction):
+        """
+        Takes an initial, possibly fragmented segmentation mask and refines it.
+        
+        Args:
+            initial_prediction (torch.Tensor): A binary tensor of shape (B, 1, H, W)
+                                               from a standard segmentation model.
+        Returns:
+            dict: A dictionary containing the final closed prediction and intermediate steps.
+        """
+        initial_prediction = initial_prediction.to(self.device)
+        
+        # --- Step 1: Deep Dilation ---
+        # The autoencoder, when given a fragmented mask, will try to reconstruct
+        # the full shape, effectively "filling in the gaps" or dilating it.
+        dilated_logits = self.deep_dilation_net(initial_prediction)
+        dilated_prob = torch.sigmoid(dilated_logits)
+        
+        # Binarize the dilated output
+        dilated_binary = (dilated_prob > 0.5).float()
+        
+        # --- Step 2: Identify Regions to Erode ---
+        # The mask for erosion (M_T in the paper) are the pixels that were
+        # added by the dilation step.
+        erosion_mask = (dilated_binary - initial_prediction).clamp(min=0)
+        
+        # --- Step 3: Deep Erosion ---
+        # Apply the topology-preserving erosion only on the newly added regions.
+        final_closed_mask = self.erosion_module.erode(
+            T=dilated_binary, 
+            M_T=erosion_mask, 
+            max_k=100 # A high number to ensure it runs to completion
+        )
+        
+        return {
+            "initial_prediction": initial_prediction,
+            "deep_dilation_output": dilated_binary,
+            "erosion_mask": erosion_mask,
+            "final_closed_mask": final_closed_mask
+        }

@@ -23,3 +23,5 @@ src/postprocess2.py
 src/postprocessing_experiment.py
 src/generate_pseudolabels.py
 density_tmp
+deepclosing_pretraining
+deepclosing_final_results

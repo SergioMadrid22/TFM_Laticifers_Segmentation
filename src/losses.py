@@ -4,6 +4,26 @@ import torch.nn.functional as F
 from clDice.cldice_loss.cldice import soft_cldice, soft_dice_cldice
 import torch.nn as nn
 
+def masked_mse_loss(prediction, original_image, mask):
+    """
+    Computes the Mean Squared Error (MSE) loss only on the regions that were
+    masked out during the Unet_MIM's forward pass.
+    
+    Args:
+        prediction (torch.Tensor): The autoencoder's reconstructed output.
+        original_image (torch.Tensor): The original, unmasked input image.
+        mask (torch.Tensor): The binary mask used for masking (1 where pixels were removed).
+    """
+    # The loss is the squared difference, but only where the mask is 1.
+    # We multiply by the mask to zero out the loss for the unmasked regions.
+    loss = F.mse_loss(prediction * mask, original_image * mask, reduction='sum')
+    
+    # We normalize the loss by the number of masked pixels to get a stable mean.
+    # Add a small epsilon to avoid division by zero if a mask is all zeros.
+    num_masked_pixels = mask.sum() + 1e-7
+    
+    return loss / num_masked_pixels
+
 def compute_soft_dice(pred, target, eps=1e-7):
     pred, target = pred.reshape(-1), target.reshape(-1)
     inter = (pred * target).sum()
@@ -102,10 +122,16 @@ def weighted_bce_loss(preds, targets, weight_map, beta=1.0):
 def get_loss_function(conf):
     """
     Constructs a loss function based on a configuration dictionary.
-    This version is modular and supports standard, combined, and topographic-weighted losses.
+    Now includes a case for the 'masked_mse' loss for pre-training.
     """
-    # --- Extract configuration parameters ---
     name = conf['loss']['name'].lower()
+    
+    # --- NEW: Special case for the Deep Closing pre-training loss ---
+    if name == 'masked_mse':
+        # This loss is simple and doesn't need combinations or weighting
+        return masked_mse_loss
+
+    # --- (The rest of the factory function remains the same) ---
     use_topo = conf['loss'].get('use_topographic', False)
     combine_name = conf['loss'].get('combine_with', None)
     
@@ -121,8 +147,6 @@ def get_loss_function(conf):
     focal_tversky_gamma = conf['loss'].get('focal_tversky_gamma', 0.75)
     eps = 1e-7
 
-    # --- Dictionary of STANDARD loss constructors ---
-    # Each returns a function that takes (preds, targets)
     loss_constructors = {
         'bce': lambda: nn.BCEWithLogitsLoss(),
         'dice': lambda: lambda p, t: dice_loss(p.sigmoid(), t, eps=eps),
@@ -133,37 +157,30 @@ def get_loss_function(conf):
         'dice_cldice': lambda: lambda p, t: soft_dice_cldice(alpha=cldice_a)(t, p.sigmoid())
     }
 
-    # --- Dictionary of TOPOGRAPHIC (WEIGHTED) loss constructors ---
-    # Each returns a function that takes (preds, targets, weight_map)
     weighted_loss_constructors = {
-        'bce': lambda: lambda p, t, w: weighted_bce_loss(p.sigmoid(), t, w, beta=topo_b),
+        # --- CORRECTION: Pass raw logits 'p' to weighted_bce_loss ---
+        'bce': lambda: lambda p, t, w: weighted_bce_loss(p, t, w, beta=topo_b),
         'dice': lambda: lambda p, t, w: weighted_dice_loss(p.sigmoid(), t, w, eps=eps),
         'tversky': lambda: lambda p, t, w: weighted_tversky_loss(p.sigmoid(), t, w, alpha=tversky_a, beta=tversky_b, eps=eps),
         'focal_tversky': lambda: lambda p, t, w: weighted_focal_tversky_loss(p.sigmoid(), t, w, alpha=tversky_a, beta=tversky_b, gamma=focal_tversky_gamma, eps=eps),
     }
 
-    # --- The final loss function to be returned ---
-    def final_loss_fn(preds, targets, dist=None):
+    def final_loss_fn(preds, targets, **kwargs):
+        dist = kwargs.get('dist', None) # Accept optional distance map
         
-        # --- Select the appropriate constructor dictionary ---
-        is_weighted = use_topo and name not in ['cldice', 'dice_cldice', 'hausdorff']
+        is_weighted = use_topo and name in weighted_loss_constructors
         constructors = weighted_loss_constructors if is_weighted else loss_constructors
 
-        # --- Get the main loss function ---
         if name not in constructors:
-            raise ValueError(f"Loss '{name}' does not have a {'weighted' if is_weighted else 'standard'} implementation.")
+            raise ValueError(f"Loss '{name}' not supported.")
         main_loss = constructors[name]()
 
-        # --- Get the combined loss function ---
         combined_loss = None
         if combine_name and w_comb > 0:
-            # Note: For simplicity, the combined loss is always the standard (non-weighted) version.
-            # A weighted combined loss could be added if needed.
             if combine_name not in loss_constructors:
-                 raise ValueError(f"Combined loss '{combine_name}' is not supported.")
+                 raise ValueError(f"Combined loss '{combine_name}' not supported.")
             combined_loss = loss_constructors[combine_name]()
 
-        # --- Prepare weights if using a weighted loss ---
         weight_map = None
         if is_weighted:
             if dist is None:
@@ -171,14 +188,11 @@ def get_loss_function(conf):
             dist_norm = dist / (dist.amax(dim=(2, 3), keepdim=True) + eps)
             weight_map = (1.0 + dist_norm) ** topo_a
 
-        # --- Calculate the final loss ---
-        # Calculate main loss (passing weights if necessary)
         if is_weighted:
             loss = w_main * main_loss(preds, targets, weight_map)
         else:
             loss = w_main * main_loss(preds, targets)
 
-        # Add combined loss (always standard)
         if combined_loss:
             loss += w_comb * combined_loss(preds, targets)
             

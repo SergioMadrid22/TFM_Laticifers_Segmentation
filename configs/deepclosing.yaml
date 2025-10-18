@@ -1,0 +1,35 @@
+# deepclosing_ae_config.yaml
+# Configuration for the self-supervised pre-training of the Deep Closing autoencoder.
+
+model:
+  name: 'unet_mim' # CRITICAL: This tells build_model to create the Unet_MIM
+  in_channels: 1
+  out_channels: 1
+  
+  # Parameters for the random masking, from the DeepClosing paper
+  mask_ratio: [0.0, 0.25] # Randomly choose a mask ratio in this range
+  patch_size_h: [10, 25]   # Randomly choose a patch height in this range
+  patch_size_w: [10, 25]   # Randomly choose a patch width in this range
+
+dataset:
+  # This section is only used to get the path to the masks and other basic params
+  patch_size: [512, 512]
+  num_patches: 50
+  num_workers: 4
+  feature_dirs:
+    # ONLY the mask directory is needed for this training task
+    mask: '/home/sergio/datasets/laticifers/masks'
+    image: '/home/sergio/datasets/laticifers/enhanced_images'
+
+train:
+  batch_size: 16
+  num_epochs: 150 # Autoencoders often benefit from longer training
+  learning_rate: 0.001
+  save_dir: 'deepclosing_pretraining'
+  log_interval: 1
+  patience: 20 # A bit more patience for this task
+  seed: 42
+
+loss:
+  # The get_loss_function will see this and return the correct masked_mse_loss
+  name: 'masked_mse'
