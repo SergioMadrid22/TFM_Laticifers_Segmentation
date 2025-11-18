@@ -7,6 +7,162 @@ from PIL import Image
 import torch
 import cv2
 
+# =========================================================================
+#  ------ AUGMENTATION PIPELINES (WEAK AND STRONG) ------
+# =========================================================================
+
+def get_weak_transforms(patch_size, in_channels):
+    """A simple augmentation pipeline for the 'weak' view in FixMatch."""
+    return A.Compose([
+        A.HorizontalFlip(p=0.5),
+        A.Normalize(mean=(0.5,) * in_channels, std=(0.5,) * in_channels),
+        ToTensorV2()
+    ])
+
+def get_strong_transforms(patch_size, in_channels):
+    """Your full, 'strong' augmentation pipeline."""
+    return A.Compose([
+        A.Affine(
+            scale=(0.9, 1.1),
+            translate_percent=0.0625,
+            rotate=(-45, 45),
+            p=0.8,
+            border_mode=cv2.BORDER_REFLECT_101
+        ),
+        A.HorizontalFlip(p=0.5),
+        A.VerticalFlip(p=0.5),
+        A.OneOf([
+            A.ElasticTransform(alpha=120, sigma=120 * 0.05, p=0.5, border_mode=cv2.BORDER_REFLECT_101),
+            A.GridDistortion(p=0.5, border_mode=cv2.BORDER_REFLECT_101),
+            A.OpticalDistortion(distort_limit=0.5, p=0.5, border_mode=cv2.BORDER_REFLECT_101)
+        ], p=0.5),
+        A.OneOf([
+            A.RandomBrightnessContrast(brightness_limit=0.2, contrast_limit=0.2, p=0.7),
+            A.RandomGamma(gamma_limit=(80, 120), p=0.5),
+        ], p=0.7),
+        A.OneOf([
+            A.GaussianBlur(blur_limit=(3, 7), p=0.5),
+            A.GaussNoise(p=0.5),
+        ], p=0.4),
+        A.Normalize(mean=(0.5,) * in_channels, std=(0.5,) * in_channels),
+        ToTensorV2()
+    ])
+
+
+# =========================================================================
+#  ------ NEW DATASET CLASS FOR SEMI-SUPERVISED LEARNING ------
+# =========================================================================
+
+def ssl_collate_fn(batch):
+    """
+    Custom collate function to handle the mixed dictionary structure from FixMatchDataset.
+    """
+    # Separate the list of dictionaries into lists for each key
+    labeled_images = [item['labeled_image'] for item in batch]
+    masks = [item['mask'] for item in batch]
+    unlabeled_weak = [item['unlabeled_weak'] for item in batch]
+    unlabeled_strong = [item['unlabeled_strong'] for item in batch]
+    is_labeled_flags = [item['is_labeled'] for item in batch]
+
+    # Use torch.stack to create a single batch tensor for each
+    batch_dict = {
+        'labeled_image': torch.stack(labeled_images),
+        'mask': torch.stack(masks),
+        'unlabeled_weak': torch.stack(unlabeled_weak),
+        'unlabeled_strong': torch.stack(unlabeled_strong),
+        # Convert the list of booleans to a proper boolean tensor
+        'is_labeled': torch.tensor(is_labeled_flags, dtype=torch.bool)
+    }
+    
+    return batch_dict
+
+
+class FixMatchDataset(Dataset):
+    """
+    CORRECTED VERSION: A dataset for semi-supervised learning with FixMatch.
+    This version returns a consistent dictionary structure for every item
+    to work correctly with the PyTorch DataLoader.
+    """
+    def __init__(self, feature_dirs, labeled_files, unlabeled_files, patch_size, patches_per_image):
+        self.feature_dirs = feature_dirs
+        self.patch_size = patch_size
+        self.patches_per_image = patches_per_image
+        
+        self.labeled_files = labeled_files
+        self.unlabeled_files = unlabeled_files
+        
+        self.num_labeled = len(labeled_files) * patches_per_image
+        self.num_unlabeled = len(unlabeled_files) * patches_per_image
+        self.length = max(self.num_labeled, self.num_unlabeled) * 2 # Ensure we have enough samples for alternating
+
+        self.in_channels = len([k for k in feature_dirs.keys() if k not in ['mask', 'distance']])
+        
+        self.weak_transforms = get_weak_transforms(patch_size, self.in_channels)
+        self.strong_transforms = get_strong_transforms(patch_size, self.in_channels)
+        
+        # --- Create dummy tensors to use as placeholders ---
+        self.dummy_image = torch.zeros((self.in_channels, patch_size[0], patch_size[1]))
+        self.dummy_mask = torch.zeros((1, patch_size[0], patch_size[1]))
+
+    def __len__(self):
+        return self.length
+
+    def _load_and_crop(self, filename, has_mask):
+        """Helper to load a full image and crop a random patch."""
+        image = self._load_feature(self.feature_dirs['image'], filename)
+        H, W = image.shape
+        ph, pw = self.patch_size
+        
+        top = np.random.randint(0, H - ph + 1)
+        left = np.random.randint(0, W - pw + 1)
+        
+        image_patch = image[top:top+ph, left:left+pw]
+        
+        if has_mask:
+            mask = self._load_feature(self.feature_dirs['mask'], filename)
+            mask_patch = mask[top:top+ph, left:left+pw] // 255
+            return image_patch, mask_patch
+        return image_patch, None
+
+    def _load_feature(self, dir_path, fname):
+        path = os.path.join(dir_path, fname)
+        return np.array(Image.open(path).convert("L"))
+
+    def __getitem__(self, idx):
+        # Determine whether to load a labeled or unlabeled sample
+        if idx % 2 == 0 and self.num_labeled > 0: # Serve a labeled sample
+            file_idx = (idx // 2) % len(self.labeled_files)
+            filename = self.labeled_files[file_idx]
+            
+            image_patch, mask_patch = self._load_and_crop(filename, has_mask=True)
+            
+            augmented = self.strong_transforms(image=image_patch, mask=mask_patch)
+            
+            # --- UNIFIED DICTIONARY ---
+            return {
+                "labeled_image": augmented['image'],
+                "mask": augmented['mask'].unsqueeze(0).float(),
+                "unlabeled_weak": self.dummy_image,  # Placeholder
+                "unlabeled_strong": self.dummy_image, # Placeholder
+                "is_labeled": True
+            }
+        else: # Serve an unlabeled sample
+            file_idx = (idx // 2) % len(self.unlabeled_files)
+            filename = self.unlabeled_files[file_idx]
+            
+            image_patch, _ = self._load_and_crop(filename, has_mask=False)
+            
+            weakly_augmented = self.weak_transforms(image=image_patch)
+            strongly_augmented = self.strong_transforms(image=image_patch)
+            
+            # --- UNIFIED DICTIONARY ---
+            return {
+                "labeled_image": self.dummy_image, # Placeholder
+                "mask": self.dummy_mask,          # Placeholder
+                "unlabeled_weak": weakly_augmented['image'],
+                "unlabeled_strong": strongly_augmented['image'],
+                "is_labeled": False
+            }
 
 class LaticiferPatchTrain(Dataset):
     def __init__(
@@ -376,4 +532,48 @@ def get_patch_dataloaders(conf, train_filenames=None, val_filenames=None):
             num_workers=num_workers
         )
 
+    return train_loader, val_loader
+
+
+def get_ssl_dataloaders(conf, labeled_files, unlabeled_files, val_files):
+    """
+    Creates a training dataloader for FixMatch and a standard validation dataloader.
+    """
+    patch_size = tuple(conf['dataset']['patch_size'])
+    num_patches = conf['dataset']['num_patches']
+    num_workers = conf['dataset']['num_workers']
+    feature_dirs = conf['dataset']['feature_dirs']
+    
+    # Create the SSL training dataset
+    train_dataset = FixMatchDataset(
+        feature_dirs=feature_dirs,
+        labeled_files=labeled_files,
+        unlabeled_files=unlabeled_files,
+        patch_size=patch_size,
+        patches_per_image=num_patches
+    )
+    
+    train_loader = DataLoader(
+        train_dataset,
+        batch_size=conf['train']['batch_size'],
+        shuffle=True,
+        num_workers=num_workers,
+        collate_fn=ssl_collate_fn
+    )
+
+    # The validation loader is a standard test loader
+    val_dataset = LaticiferPatchTest(
+        feature_dirs=feature_dirs,
+        filenames=val_files,
+        patch_size=patch_size,
+        stride=tuple(conf['dataset']['stride']),
+    )
+
+    val_loader = DataLoader(
+        val_dataset,
+        batch_size=1, # Always 1 for full-image reconstruction
+        shuffle=False,
+        num_workers=num_workers
+    )
+    
     return train_loader, val_loader

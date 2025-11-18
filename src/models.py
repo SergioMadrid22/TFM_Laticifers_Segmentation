@@ -3,6 +3,8 @@ import torch
 import logging
 import torch.nn as nn
 from deep_closing_modules import Unet_MIM, Simple_Point_Erosion_Module
+import timm
+from torch.nn import functional as F
 
 logger = logging.getLogger(__name__)
 
@@ -150,7 +152,17 @@ def build_model(conf):
     if 'distance' in feature_dirs:
         in_channels -= 1
 
-    # --- NEW LOGIC FOR DEEP CLOSING MODELS ---
+    if model_name == 'hrnet':
+        logging.info(f"Building HRNetSegmentation model with encoder: {conf['model']['encoder_name']}")
+        model = HRNetSegmentation(
+            encoder_name=conf['model']['encoder_name'],
+            in_channels=in_channels,
+            classes=conf['model']['classes'],
+            pretrained=conf['model'].get('encoder_weights') == 'imagenet'
+        )
+        return model
+
+    # --- LOGIC FOR DEEP CLOSING MODELS ---
     # Add a special case for the masked autoencoder pre-training step
     if model_name == 'unet_mim':
         logging.info("Building Unet_MIM for pre-training.")
@@ -325,3 +337,72 @@ class DeepClosingRefiner(nn.Module):
             "erosion_mask": erosion_mask,
             "final_closed_mask": final_closed_mask
         }
+
+# =========================================================================
+#  ------ HRNet-based Segmentation Model ------
+# =========================================================================
+
+class HRNetSegmentation(nn.Module):
+    """
+    A semantic segmentation model using a pre-trained HRNet backbone from timm.
+    This version corrects the final upsampling factor.
+    """
+    def __init__(self, encoder_name='hrnet_w48', in_channels=1, classes=1, pretrained=True):
+        super().__init__()
+        
+        self.encoder = timm.create_model(
+            encoder_name,
+            pretrained=pretrained,
+            features_only=True,
+            in_chans=in_channels,
+            # For HRNet, this parameter ensures the output features start at 1/2 scale, not 1/4.
+            # This is not a standard timm param for all models, but useful here if available.
+            # However, the robust solution is to adapt the decoder.
+        )
+        
+        feature_channels = self.encoder.feature_info.channels()
+        logging.info(f"HRNet encoder feature channels: {feature_channels}")
+        
+        # Decoder logic to upsample all features to match the highest-res feature map
+        self.upsample_layers = nn.ModuleList()
+        # The first feature map is the base, so we iterate from the second one
+        for i in range(1, len(feature_channels)):
+            scale_factor = 2**i # Assumes each stage halves the resolution
+            self.upsample_layers.append(
+                nn.Upsample(scale_factor=scale_factor, mode='bilinear', align_corners=False)
+            )
+        
+        total_decoder_channels = sum(feature_channels)
+        
+        # --- THE FIX IS HERE ---
+        # The highest resolution feature map from this HRNet is at 1/2 scale (e.g., 256x256 for a 512x512 input).
+        # Therefore, the final upsampling must be by a factor of 2 to match the original input size.
+        self.segmentation_head = nn.Sequential(
+            nn.Conv2d(total_decoder_channels, 256, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(256),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(256, classes, kernel_size=1),
+            # Corrected from scale_factor=4 to scale_factor=2
+            nn.Upsample(scale_factor=2, mode='bilinear', align_corners=False) 
+        )
+
+    def forward(self, x):
+        features = self.encoder(x)
+        
+        # The base feature map is the first one (highest resolution)
+        # For this HRNet, its resolution is H/2, W/2
+        base_features = features[0]
+        
+        upsampled_features = [base_features]
+        for i, feature_map in enumerate(features[1:]):
+            upsampled_features.append(self.upsample_layers[i](feature_map))
+            
+        fused_features = torch.cat(upsampled_features, dim=1)
+        
+        logits = self.segmentation_head(fused_features)
+        
+        # Ensure final output size matches input size exactly, handling any off-by-one errors from convolutions
+        # This is a good robustness check.
+        logits = F.interpolate(logits, size=x.shape[-2:], mode='bilinear', align_corners=False)
+
+        return logits

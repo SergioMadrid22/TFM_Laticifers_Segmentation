@@ -315,8 +315,6 @@ def main(conf):
 
         logging.info(f"Fold {fold+1} results: " + " | ".join([f"{k}: {v:.4f}" for k,v in test_metrics.items()]))
 
-    # --- MODIFIED PART STARTS HERE ---
-
     # Convert fold results to a DataFrame
     results_df = pd.DataFrame(fold_results)
     

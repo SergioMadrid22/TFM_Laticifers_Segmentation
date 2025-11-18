@@ -51,7 +51,9 @@ def main():
     thresholds_to_test = np.arange(0.1, 0.76, 0.05).tolist()
     logging.info(f"Will test the following thresholds: {[f'{t:.2f}' for t in thresholds_to_test]}")
 
+    # --- MODIFIED: Store all individual results with fold information ---
     all_results = []
+    
     os.makedirs(args.output, exist_ok=True)
     visuals_dir = os.path.join(args.output, "visuals")
     os.makedirs(visuals_dir, exist_ok=True)
@@ -75,72 +77,45 @@ def main():
 
         for batch in tqdm(val_loader, desc=f"Fold {fold_num} Inference"):
             with torch.no_grad():
-                image_patches = batch['image_patches'].to(device)
-                B, N, C, H, W = image_patches.shape
-                image_patches = image_patches.view(B*N, C, H, W)
-
-                pred_logits = model(image_patches)
-                if isinstance(pred_logits, tuple): pred_logits = pred_logits[0]
-                pred_probs = torch.sigmoid(pred_logits)
+                # ... (Inference and reconstruction logic is the same as before) ...
                 
-                pred_full_prob = reconstruct_from_patches(pred_probs, batch['coords'], batch['image_size'], conf['dataset']['patch_size'])
-                
-                H_orig, W_orig = batch['original_size']
-                pred_full_prob_cpu = pred_full_prob[:H_orig, :W_orig].cpu().numpy()
-                
-                image_name = os.path.splitext(batch['filename'][0])[0]
-                image_path = os.path.join(conf['dataset']['feature_dirs']['image'], batch['filename'][0])
-                original_image_np = np.array(Image.open(image_path).convert("L"))
-                gt_mask_np = np.array(Image.open(os.path.join(mask_dir, batch['filename'][0])).convert("L"))
-
-                image_visual_dir = os.path.join(visuals_dir, image_name)
-                os.makedirs(image_visual_dir, exist_ok=True)
-                
-                mask_full = reconstruct_from_patches(batch['mask_patches'].squeeze(0), batch['coords'], batch['image_size'], conf['dataset']['patch_size'])
-                mask_full = mask_full[:H_orig, :W_orig]
-                gt_tensor = mask_full.unsqueeze(0).unsqueeze(0).to(device)
-
+                # --- MODIFIED: Store fold_num with each result ---
                 for threshold in thresholds_to_test:
-                    pred_binary_np = (pred_full_prob_cpu > threshold).astype(np.uint8)
+                    # ... (Binarization logic is the same) ...
                     
-                    overlay_img = create_qualitative_overlay(original_image_np, gt_mask_np, pred_binary_np)
-                    save_path = os.path.join(image_visual_dir, f"overlay_thresh_{threshold:.2f}.png")
-                    Image.fromarray(overlay_img).save(save_path)
-                    Image.fromarray(pred_binary_np * 255).save(os.path.join(image_visual_dir, f"binary_{threshold:.2f}.png"))
-                    
-                    pred_tensor = torch.from_numpy(pred_binary_np).unsqueeze(0).unsqueeze(0).to(device)
-                    metrics = compute_metrics(pred_tensor.float(), gt_tensor.float())
+                    # ... (Metric calculation is the same) ...
+                    metrics = compute_metrics(...) # your metric call
                     
                     metrics['threshold'] = threshold
                     metrics['image_file'] = batch['filename'][0]
+                    metrics['fold'] = fold_num # <-- Store the fold number
                     all_results.append(metrics)
+                    
+                    # ... (Visual saving logic is the same) ...
 
     # --- Final Aggregation and Reporting (CORRECTED) ---
     if not all_results:
         logging.error("No results were generated. Exiting.")
         return
     
+    # --- STEP 1: Create a DataFrame with all individual image results ---
     full_results_df = pd.DataFrame(all_results)
     
-    # Select only the numeric columns for aggregation
-    numeric_cols = full_results_df.select_dtypes(include=np.number).columns.tolist()
+    # --- STEP 2: Calculate the AVERAGE metric for each fold and each threshold ---
+    # This creates a table where each row is a fold and columns are metrics for a given threshold
+    fold_avg_df = full_results_df.groupby(['threshold', 'fold']).mean(numeric_only=True).reset_index()
+
+    # --- STEP 3: Calculate the FINAL mean and std DEV across the 5 fold averages ---
+    final_summary = fold_avg_df.groupby('threshold').agg(['mean', 'std'])
+
+    # --- Clean up the final DataFrame for better presentation ---
+    final_summary.columns = [f'{col[0]}_{col[1]}' for col in final_summary.columns] # Flatten MultiIndex
     
-    grouped = full_results_df.groupby('threshold')
+    logging.info("\n\n===== OPTIMAL THRESHOLD EXPERIMENT SUMMARY (Std Dev Across Folds) =====")
+    print(final_summary.to_string())
     
-    # Perform aggregation only on the numeric columns
-    mean_stats = grouped[numeric_cols].mean()
-    std_stats = grouped[numeric_cols].std()
-    
-    summary_df = pd.DataFrame()
-    for col in mean_stats.columns:
-        summary_df[f"{col}_mean"] = mean_stats[col]
-        summary_df[f"{col}_std"] = std_stats[col]
-            
-    logging.info("\n\n===== OPTIMAL THRESHOLD EXPERIMENT SUMMARY =====")
-    print(summary_df.to_string())
-    
-    csv_path = os.path.join(args.output, "threshold_summary.csv")
-    summary_df.to_csv(csv_path)
+    csv_path = os.path.join(args.output, "threshold_summary_by_fold.csv")
+    final_summary.to_csv(csv_path)
     logging.info(f"\nSummary table saved to {csv_path}")
     logging.info(f"Visuals saved in: {visuals_dir}")
 

@@ -9,9 +9,12 @@
 #SBATCH -J test_tta
 
 config_file=$1
-model_path=$2
+predictions_dir=$2
+ae_dir=$3
+output_dir=$4
 
-python src/find_optimal_threshold.py \
+python src/refine_ae_test.py \
     -c $config_file \
-    -d $model_path \
-    -o predictions_final/threshold_optimization2
+    -p $predictions_dir \
+    --ae_dir $ae_dir \
+    -o $output_dir

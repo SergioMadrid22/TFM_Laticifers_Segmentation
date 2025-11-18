@@ -7,9 +7,9 @@ model:
   out_channels: 1
   
   # Parameters for the random masking, from the DeepClosing paper
-  mask_ratio: [0.0, 0.25] # Randomly choose a mask ratio in this range
-  patch_size_h: [10, 25]   # Randomly choose a patch height in this range
-  patch_size_w: [10, 25]   # Randomly choose a patch width in this range
+  mask_ratio: [0.0, 0.5] # Randomly choose a mask ratio in this range
+  patch_size_h: [5, 15]   # Randomly choose a patch height in this range
+  patch_size_w: [5, 15]   # Randomly choose a patch width in this range
 
 dataset:
   # This section is only used to get the path to the masks and other basic params
@@ -18,8 +18,8 @@ dataset:
   num_workers: 4
   feature_dirs:
     # ONLY the mask directory is needed for this training task
-    mask: '/home/sergio/datasets/laticifers/masks'
-    image: '/home/sergio/datasets/laticifers/enhanced_images'
+    mask: '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/masks'
+    image: '/data/smadper@alumno.upv.es/TFM/datasets/laticifers/enhanced_images'
 
 train:
   batch_size: 16

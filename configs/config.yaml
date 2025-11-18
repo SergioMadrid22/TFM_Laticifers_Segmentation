@@ -24,14 +24,17 @@ dataset:
 
 
 train:
-  batch_size: 16
+  batch_size: 32
   num_epochs: 80
   learning_rate: 0.001
-  accumulation_steps: 2
+  accumulation_steps: 1
   save_dir: '/data/smadper@alumno.upv.es/TFM/checkpoints_tmp'
   log_interval: 1
-  patience: 10
+  patience: 15
   mixed_precision: true
+  lambda_consistency: 0.25
+  confidence_thresh: 0.9
+  warmup_epochs: 10
 #  curriculum_schedule:  # (epoch_threshold, dilation_level)
 #    - [0, 4]
 #    - [5, 3]
@@ -53,6 +56,8 @@ loss:
   tversky_beta: 0.7
   focal_tversky_gamma: 0.75
   cldice_alpha: 0.05
+  cbdice_alpha: 1.0
+  cbdice_beta: 1.0
   use_topographic: false     # If true, uses distance-weighted loss
   topo:
     alpha: 2.0

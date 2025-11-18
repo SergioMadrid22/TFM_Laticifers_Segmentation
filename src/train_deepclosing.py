@@ -15,6 +15,8 @@ from sklearn.model_selection import KFold
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.amp import autocast, GradScaler
 import matplotlib.pyplot as plt
+import albumentations as A
+import cv2
 
 # --- Import your existing modules ---
 from models import build_model
@@ -38,14 +40,38 @@ def parse_args():
 # the input and the target for the self-supervised autoencoder.
 
 class AutoencoderMaskDataset(Dataset):
-    def __init__(self, mask_dir, filenames, patch_size, patches_per_image):
+    def __init__(self, mask_dir, filenames, patch_size, patches_per_image, use_augmentation=False):
         self.mask_dir = mask_dir
         self.filenames = filenames
         self.patch_size = patch_size
         self.patches_per_image = patches_per_image
+        self.use_augmentation = use_augmentation
+        
         self.samples = []
         for i in range(len(self.filenames)):
             self.samples.extend([i] * self.patches_per_image)
+
+        # --- NEW: Define the augmentation pipeline for the masks ---
+        if self.use_augmentation:
+            self.transforms = A.Compose([
+                A.Affine(
+                    scale=(0.9, 1.1),
+                    translate_percent=0.0625,
+                    rotate=(-45, 45),
+                    p=0.8,
+                    border_mode=cv2.BORDER_REFLECT_101
+                ),
+                A.HorizontalFlip(p=0.5),
+                A.VerticalFlip(p=0.5),
+                A.ElasticTransform(
+                    alpha=120,
+                    sigma=120 * 0.05,
+                    p=0.3,
+                    border_mode=cv2.BORDER_REFLECT_101
+                ),
+            ])
+        else:
+            self.transforms = None
 
     def __len__(self):
         return len(self.samples)
@@ -56,17 +82,26 @@ class AutoencoderMaskDataset(Dataset):
         
         mask_path = os.path.join(self.mask_dir, fname)
         mask_img = np.array(Image.open(mask_path).convert("L"))
-        mask_bin = (mask_img > 127).astype(np.float32) # Normalize to 0.0 or 1.0
+        mask_bin = (mask_img > 127).astype(np.float32)
+        
+        # --- NEW: Apply augmentations to the full mask BEFORE cropping ---
+        if self.transforms:
+            # Albumentations expects a keyword 'image'
+            augmented = self.transforms(image=mask_bin)
+            mask_bin = augmented['image']
         
         # Randomly crop a patch
         H, W = mask_bin.shape
         ph, pw = self.patch_size
+        if H < ph or W < pw: # Handle cases where augmented image is smaller
+            mask_bin = cv2.copyMakeBorder(mask_bin, 0, max(0, ph-H), 0, max(0, pw-W), cv2.BORDER_CONSTANT, value=0)
+            H, W = mask_bin.shape
+
         top = np.random.randint(0, H - ph + 1)
         left = np.random.randint(0, W - pw + 1)
         
         mask_patch = mask_bin[top:top+ph, left:left+pw]
         
-        # Return as a tensor with a channel dimension
         return torch.from_numpy(mask_patch).unsqueeze(0)
 
 # =========================================================================
@@ -172,9 +207,9 @@ def main_cv(conf):
         fold_save_dir = os.path.join(save_dir, f"fold_{fold+1}")
 
         # --- Create new, simple datasets for this task ---
-        train_dataset = AutoencoderMaskDataset(mask_dir, train_files, tuple(conf['dataset']['patch_size']), conf['dataset']['num_patches'])
-        val_dataset = AutoencoderMaskDataset(mask_dir, val_files, tuple(conf['dataset']['patch_size']), conf['dataset']['num_patches'])
-        
+        train_dataset = AutoencoderMaskDataset(mask_dir, train_files, tuple(conf['dataset']['patch_size']), conf['dataset']['num_patches'], use_augmentation=True)
+        val_dataset = AutoencoderMaskDataset(mask_dir, val_files, tuple(conf['dataset']['patch_size']), conf['dataset']['num_patches'], use_augmentation=False)
+
         train_loader = DataLoader(train_dataset, batch_size=conf['train']['batch_size'], shuffle=True, num_workers=conf['dataset']['num_workers'])
         val_loader = DataLoader(val_dataset, batch_size=conf['train']['batch_size'], shuffle=False, num_workers=conf['dataset']['num_workers'])
         
